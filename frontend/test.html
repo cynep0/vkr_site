@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Platform - Hello World</title>
+    <link rel="stylesheet" type="text/css" href="test.css">
+    <script src="test.js" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ML Platform</h1>
+        <p class="subtitle">Загрузите CSV файл для обучения модели</p>
+        
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">📁</div>
+            <div class="drop-zone-text">
+                Перетащите файл сюда или <span class="drop-zone-highlight">выберите файл</span>
+            </div>
+            <input type="file" id="fileInput" accept=".csv">
+        </div>
+        
+        <div class="loading" id="loading">
+            ⏳ Обучение модели... Пожалуйста, подождите
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result-box" id="resultBox">
+            <h3 style="margin-bottom: 15px; color: #333;">Результаты обучения</h3>
+            <div class="result-item">
+                <span class="result-label">Точность (Accuracy):</span>
+                <span class="result-value accuracy" id="accuracy">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Размер обучающей выборки:</span>
+                <span class="result-value" id="trainSize">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Размер тестовой выборки:</span>
+                <span class="result-value" id="testSize">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Признаки:</span>
+                <span class="result-value" id="features">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Статус:</span>
+                <span class="result-value" id="message">-</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: lightskyblue;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.drop-zone {
+    border: 3px dashed #667eea;
+    border-radius: 10px;
+    padding: 60px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9ff;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: #764ba2;
+    background: #f0f2ff;
+    transform: scale(1.02);
+}
+
+.drop-zone-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.drop-zone-text {
+    color: #555;
+    font-size: 16px;
+}
+
+.drop-zone-highlight {
+    color: #667eea;
+    font-weight: bold;
+}
+
+#fileInput {
+    display: none;
+}
+
+.result-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9ff;
+    border-radius: 10px;
+    display: none;
+}
+
+.result-box.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.result-value {
+    color: #333;
+    font-weight: bold;
+}
+
+.accuracy {
+    color: #667eea;
+    font-size: 24px;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #667eea;
+    display: none;
+}
+
+.loading.show {
+    display: block;
+}
+
+.error {
+    background: #ffe6e6;
+    color: #cc0000;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    display: none;
+}
+
+.error.show {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
