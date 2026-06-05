@@ -13,6 +13,31 @@ body {
     padding: 20px;
 }
 
+section{
+    margin-bottom: 12px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    background: #667eea; 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+  background-color: #764ba2; 
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
 .container {
     background: white;
     border-radius: 15px;
@@ -32,6 +57,75 @@ h1 {
     color: #666;
     text-align: center;
     margin-bottom: 30px;
+}
+
+small{
+    color: #666;
+    display: block;
+    margin-top: 5px;
+}
+
+.model-settings{
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 10px;
+}
+
+.column-selection {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9ff;
+    border-radius: 10px;
+    display: none;
+}
+
+.column-selection.show {
+    display: block;
+}
+
+.features-list{
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    background: white;
+}
+
+#columnWarning{
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff3cd;
+    border-radius: 5px;
+    display: none;
+}
+
+.checkBox-label{
+    cursor: pointer;
+}
+
+h3{
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.important-label{
+    display: block; 
+    margin-bottom: 5px;
+    font-weight: bold; 
+    color: #667eea;
+}
+
+input[type="range"]{
+    width: 100%;
+}
+
+select, input[type="number"]{
+    width: 100%;
+    padding: 8px; 
+    border-radius: 5px; 
+    border: 1px solid #ddd;
 }
 
 .drop-zone {
@@ -69,6 +163,14 @@ h1 {
     display: none;
 }
 
+.file-info {
+    display: none;
+    margin: 15px 0;
+    padding: 10px; 
+    background:#e8f4fc;
+    border-radius: 8px;
+}
+
 .result-box {
     margin-top: 30px;
     padding: 20px;
@@ -93,7 +195,7 @@ h1 {
     border-bottom: none;
 }
 
-.result-label {
+.result-label, .value {
     color: #666;
     font-weight: 500;
 }
@@ -125,6 +227,11 @@ h1 {
     padding: 15px;
     border-radius: 8px;
     margin-top: 20px;
+    display: none;
+}
+
+#cError, #maxIterError{
+    color: #cc0000;
     display: none;
 }
 

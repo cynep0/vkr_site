@@ -1,8 +1,7 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import os
-import shutil
+import json
 from ml_pipeline import train_model
 
 app = FastAPI(title="ML Platform API")
@@ -11,15 +10,9 @@ app = FastAPI(title="ML Platform API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
-
-# Папка для загрузок
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
 
 @app.get("/")
 def read_root():
@@ -27,26 +20,38 @@ def read_root():
 
 
 @app.post("/upload/")
-async def upload_file(file: UploadFile = File(...)):
-    """
-    Загружает CSV файл и возвращает результат обучения модели.
-    """
+async def upload_file(
+    file: UploadFile = File(...),
+    target_column: str = Form(...),  # Обязательно
+    feature_columns: str = Form(...),
+    C: float = Form(1.0),
+    penalty: str = Form("l2"),
+    max_iter: int = Form(1000),
+    test_size: float = Form(0.2)
+):
     # Проверка расширения
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Только CSV файлы!")
 
-    # Сохранение файла
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    # Парсим список признаков из JSON
     try:
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        features = json.loads(feature_columns)
+        if not isinstance(features, list) or len(features) == 0:
+            raise ValueError("feature_columns должен быть непустым списком")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Неверный формат feature_columns")
 
-        # Обучение модели
-        result = train_model(file_path)
-
-        # Удаляем файл после обработки (опционально)
-        # os.remove(file_path)
-
+    # попытка обучить модель
+    try:
+        result = train_model(
+            file.file,
+            target_column=target_column,
+            feature_columns=features,
+            C=C,
+            penalty=penalty,
+            max_iter=max_iter,
+            test_size=test_size
+        )
         return JSONResponse(content=result)
 
     except Exception as e:
@@ -56,3 +61,6 @@ async def upload_file(file: UploadFile = File(...)):
 @app.get("/health/")
 def health_check():
     return {"status": "ok"}
+
+#uvicorn main:app --reload
+#
