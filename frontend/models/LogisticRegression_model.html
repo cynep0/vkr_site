@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ML Platform - Hello World</title>
-    <link rel="stylesheet" type="text/css" href="test.css">
-    <script src="test.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="model_style.css">
+    <script src="LogisticRegression_model.js" defer></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 
@@ -49,6 +49,13 @@
                 <input type="range" id="paramTestSize" min="0.1" max="0.5" step="0.05" value="0.2"
                 oninput="document.getElementById('testSizeValue').textContent = (this.value * 100).toFixed(0) + '%'">
                 <span class="value">Значение: <strong id="testSizeValue">20%</strong></span>
+            </section>
+
+            <section style="display: flex;">
+                <label class="checkBox-label" style="font-weight: bold; color: #667eea;">
+                    Установить веса для классов
+                    <input type="checkbox" id="classWeight">
+                </label>
             </section>
         </div>
 
@@ -111,23 +118,11 @@
 
             <div class="result-item">
                 <span class="result-label">Точность (Accuracy):</span>
-                <span class="result-value accuracy" id="accuracy">-</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Точность (Precision):</span>
-                <span class="result-value accuracy" id="accuracy">-</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Полнота (Recall ):</span>
-                <span class="result-value accuracy" id="recall">-</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">F1-Score:</span>
-                <span class="result-value accuracy" id="f1Score">-</span>
+                <span class="result-value" id="accuracy">-</span>
             </div>
             <div class="result-item">
                 <span class="result-label">ROC-AUC:</span>
-                <span class="result-value accuracy" id="rocAuc">-</span>
+                <span class="result-value" id="rocAuc">-</span>
             </div>
 
 
@@ -146,26 +141,42 @@
 
 
             <!-- Матрица ошибок (график) -->
-            <div class="chart-container" id="confusionMatrixChart" style="display: none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 15px; color: #333;">🎯 Матрица ошибок</h3>
+            <div class="chart-container" id="confusionMatrixChart" style="display:none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="margin-bottom: 15px; color: #333;">Матрица ошибок</h3>
                 <div id="confusionMatrixPlot" style="width: 100%; height: 400px;"></div>
                 <small style="color: #666; display: block; margin-top: 10px;">
-                    💡 Диагональ — правильные предсказания. Чем темнее ячейка, тем больше объектов.
+                    Диагональ — правильные предсказания. Чем темнее ячейка, тем больше объектов.
                 </small>
+
+                <hr>
+
+                <div class="result-item">
+                    <span class="result-label">Точность (Precision):</span>
+                    <span class="result-value" id="precision">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Полнота (Recall ):</span>
+                    <span class="result-value" id="recall">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">F1-Score:</span>
+                    <span class="result-value" id="f1Score">-</span>
+                </div>
             </div>
 
             <!-- Важность признаков (график) -->
-            <div class="chart-container" id="featureImportanceChart" style="display: none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 15px; color: #333;">🔍 Важность признаков</h3>
+            <div class="chart-container" id="featureImportanceChart" style="display:none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="margin-bottom: 15px; color: #333;">Важность признаков</h3>
+                <span>Коэффициенты модели: влияние признаков на прогноз</span>
                 <div id="featureImportancePlot" style="width: 100%; height: 400px;"></div>
                 <small style="color: #666; display: block; margin-top: 10px;">
-                    💡 Положительный коэффициент → признак увеличивает вероятность положительного класса.
+                    Положительный коэффициент → признак увеличивает вероятность положительного класса.
                 </small>
             </div>
 
             <!-- Информация о сходимости -->
-            <div class="convergence-info" id="convergenceInfo" style="display: none; margin: 20px 0; padding: 15px; background: #e8f5e9; border-radius: 10px; border-left: 4px solid #4caf50;">
-                <h4 style="margin-bottom: 10px; color: #2e7d32;">✅ Статус обучения</h4>
+            <div class="convergence-info" id="convergenceInfo" style="margin: 20px 0; padding: 15px; background: #e8f5e9; border-radius: 10px; border-left: 4px solid #4caf50;">
+                <h4 style="margin-bottom: 10px; color: #2e7d32;">Статус обучения</h4>
                 <p><strong>Итераций:</strong> <span id="nIter">-</span></p>
                 <p><strong>Сходимость:</strong> <span id="converged">-</span></p>
             </div>

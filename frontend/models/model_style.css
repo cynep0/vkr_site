@@ -53,6 +53,10 @@ h1 {
     margin-bottom: 10px;
 }
 
+hr{
+    margin: 5px;
+}
+
 .subtitle {
     color: #666;
     text-align: center;

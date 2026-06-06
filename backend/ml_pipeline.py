@@ -21,7 +21,8 @@ def train_model(file_object,
                 C: float = 1.0,
                 penalty: str = "l2",
                 max_iter: int = 1000,
-                test_size: float = 0.2) -> dict:
+                test_size: float = 0.2,
+                class_weight: str = "None" ) -> dict:
     """
     Обучает модель на загруженных данных и возвращает метрики.
     """
@@ -74,7 +75,8 @@ def train_model(file_object,
         C=C if penalty != "none" else np.inf,
         l1_ratio=l1_ratio if penalty != "none" else None,
         solver="lbfgs" if penalty != "l1" else "saga",
-        max_iter=max_iter)
+        max_iter=max_iter,
+        class_weight=None if class_weight=="None" else class_weight)
     model.fit(X_train, y_train)
 
     # Предсказание и оценка
@@ -125,6 +127,10 @@ def train_model(file_object,
     print(f"Accuracy: {accuracy}")
 
     print("--------")
+    print("precision: ", precision)
+    print("recall: ", recall)
+    print("f1_score: ", f1)
+    print("roc_auc: ", roc_auc)
     print(cm.tolist())
     print([int(x) if isinstance(x, (np.integer, np.floating)) else str(x)
                                     for x in np.unique(y)])
@@ -160,5 +166,5 @@ def train_model(file_object,
             "converged": bool(convergence_info["converged"])
         },
 
-        "message": "Модель успешно обучена!!!!!"
+        "message": "Модель успешно обучена!"
     }

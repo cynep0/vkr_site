@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultBox = document.getElementById('resultBox');
     const errorBox = document.getElementById('error');
     
-    const API_URL = 'http://127.0.0.1:8000/upload/';
+    const API_URL = 'http://127.0.0.1:8000/logistic_regression/';
 
     // === Глобальная переменная для хранения файла ===
     let selectedFile = null;
@@ -234,6 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('target_column', selectedColumns.target);
         formData.append('feature_columns', JSON.stringify(selectedColumns.features));
 
+        const classWeightChecked = document.getElementById('classWeight').checked;
+        formData.append('class_weight', classWeightChecked ? 'balanced' : 'None');
 
         try {
             // === Отправка запроса ===
@@ -265,10 +267,103 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('accuracy').textContent = (data.accuracy * 100).toFixed(2) + '%';
         document.getElementById('trainSize').textContent = data.train_size;
         document.getElementById('testSize').textContent = data.test_size;
-        document.getElementById('features').textContent = data.features.length;
+        document.getElementById('features').textContent = data.features.join(', ');
         document.getElementById('message').textContent = data.message;
         
+        document.getElementById('precision').textContent = data.precision.toFixed(4);
+        document.getElementById('recall').textContent = data.recall.toFixed(4);
+        document.getElementById('f1Score').textContent = data.f1_score.toFixed(4);
+        document.getElementById('rocAuc').textContent = data.roc_auc !== null ? data.roc_auc.toFixed(4) : 'N/A';
+
+        // 3. Матрица ошибок (график)
+        if (data.confusion_matrix && data.confusion_matrix.length > 0) {
+            drawConfusionMatrix(data.confusion_matrix, data.confusion_matrix_labels);
+            document.getElementById('confusionMatrixChart').style.display = 'block';
+        }
+        
+        // 4. Важность признаков (график)
+        if (data.feature_importance && Object.keys(data.feature_importance).length > 0) {
+            drawFeatureImportance(data.feature_importance);
+            document.getElementById('featureImportanceChart').style.display = 'block';
+        }
+        
+        // 5. Информация о сходимости
+        if (data.convergence) {
+            document.getElementById('nIter').textContent = data.convergence.n_iter || 'N/A';
+            document.getElementById('converged').textContent = data.convergence.converged ? 'Да' : 'Нет';
+            document.getElementById('convergenceInfo').style.display = 'block';
+        }
+
         resultBox.classList.add('show');
+    }
+
+    // === Функция рисования матрицы ошибок (Plotly) ===
+    function drawConfusionMatrix(matrix, labels) {
+        // Если метки не переданы, используем [0, 1]
+        const classLabels = labels || [0, 1];
+
+        // Создаем текст для ячеек
+        const zText = matrix.map(row => row.map(val => val.toString()));
+
+        const trace = {
+            x: classLabels,
+            y: classLabels,
+            z: matrix,
+            text: zText,
+            type: 'heatmap',
+            colorscale: 'Blues',
+            showscale: true,
+            texttemplate: '%{text}',
+            textfont: {size: 14, color: matrix.some(row => row.some(v => v > 10)) ? 'white' : 'black'}
+        };
+
+        const layout = {
+            xaxis: {title: 'Предсказанный класс'},
+            yaxis: {title: 'Реальный класс', autorange: 'reversed'},
+            margin: {t: 50, l: 50, r: 20, b: 50}
+        };
+
+        Plotly.newPlot('confusionMatrixPlot', [trace], layout, {responsive: true});
+
+        setTimeout(() => {
+            Plotly.Plots.resize('confusionMatrixPlot');
+        }, 100);
+    }
+
+    // === Функция рисования важности признаков (Plotly) ===
+    function drawFeatureImportance(importance) {
+        // Сортируем по абсолютному значению коэффициента (для наглядности)
+        const sorted = Object.entries(importance)
+            .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+            .slice(0, 10); // Показываем топ-10 признаков
+
+        const features = sorted.map(([name, _]) => name);
+        const coefficients = sorted.map(([_, value]) => value);
+
+        // Цвета: зелёный для положительных, красный для отрицательных
+        const colors = coefficients.map(v => v >= 0 ? 'rgba(76, 175, 80, 0.7)' : 'rgba(244, 67, 54, 0.7)');
+
+        const trace = {
+            x: coefficients,
+            y: features,
+            type: 'bar',
+            orientation: 'h',
+            marker: {color: colors},
+            text: coefficients.map(v => v.toFixed(3)),
+            textposition: 'auto'
+        };
+
+        const layout = {
+            xaxis: {title: 'Значение коэффициента'},
+            yaxis: {title: 'Признак'},
+            margin: {t: 50, l: 150, r: 20, b: 50}
+        };
+
+        Plotly.newPlot('featureImportancePlot', [trace], layout, {responsive: true});
+        
+        setTimeout(() => {
+            Plotly.Plots.resize('featureImportancePlot');
+        }, 100);
     }
     
     // Отображение ошибки

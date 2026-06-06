@@ -19,7 +19,7 @@ def read_root():
     return {"message": "ML Platform API is running!"}
 
 
-@app.post("/upload/")
+@app.post("/logistic_regression/")
 async def upload_file(
     file: UploadFile = File(...),
     target_column: str = Form(...),  # Обязательно
@@ -27,7 +27,8 @@ async def upload_file(
     C: float = Form(1.0),
     penalty: str = Form("l2"),
     max_iter: int = Form(1000),
-    test_size: float = Form(0.2)
+    test_size: float = Form(0.2),
+    class_weight: str = Form("None")
 ):
     # Проверка расширения
     if not file.filename.endswith('.csv'):
@@ -50,7 +51,8 @@ async def upload_file(
             C=C,
             penalty=penalty,
             max_iter=max_iter,
-            test_size=test_size
+            test_size=test_size,
+            class_weight=class_weight
         )
         return JSONResponse(content=result)
 
