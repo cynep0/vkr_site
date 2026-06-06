@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Линейная регрессия</title>
+    <link rel="stylesheet" href="../common_style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-brand">ML Platform</div>
+        <div class="nav-links">
+            <a href="../main.html">Главная</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Заголовок -->
+        <section class="content-section">
+            <div class="breadcrumb">
+                <a href="../main.html">Главная</a> → 
+                <a href="../main.html#methods">Методы</a> → 
+                <span>Линейная регрессия</span>
+            </div>
+            
+            <h1>Линейная регрессия</h1>
+            <p class="method-tagline">
+                Базовый алгоритм для предсказания непрерывных числовых значений
+            </p>
+        </section>
+
+        <!-- Что это такое -->
+        <section class="content-section">
+            <h2>Что это такое?</h2>
+            <div class="info-card">
+                <p>
+                    <strong>Линейная регрессия</strong> — это статистический метод, который моделирует 
+                    линейную зависимость между признаками (независимыми переменными) и целевой переменной 
+                    (зависимой переменной).
+                </p>
+                <div class="highlight-box">
+                    <strong>Цель:</strong> Найти такую прямую (или гиперплоскость), которая минимизирует 
+                    ошибку предсказания.
+                </div>
+            </div>
+        </section>
+
+        <!-- Математическая формула -->
+        <section class="content-section">
+            <h2>Математическая основа</h2>
+            <div class="formula-card">
+                <h3>Уравнение линейной регрессии</h3>
+                <div class="formula">
+                    <p>y = w₁x₁ + w₂x₂ + ... + wₙxₙ + b + ε</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>y</strong> — предсказываемое значение (целевая переменная)</li>
+                        <li><strong>w₁, w₂, ... wₙ</strong> — веса (коэффициенты) модели</li>
+                        <li><strong>x₁, x₂, ... xₙ</strong> — признаки (входные переменные)</li>
+                        <li><strong>b</strong> — свободный член (intercept, сдвиг)</li>
+                        <li><strong>ε</strong> — случайная ошибка (шум)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Метод наименьших квадратов -->
+        <section class="content-section">
+            <h2>Как обучается модель?</h2>
+            <div class="info-card">
+                <h3>Метод наименьших квадратов (МНК)</h3>
+                <p>
+                    Модель подбирает коэффициенты так, чтобы минимизировать сумму квадратов ошибок:
+                </p>
+                <div class="formula" style="margin: 15px 0;">
+                    <p>min Σ(y<sub>i</sub> - ŷ<sub>i</sub>)²</p>
+                </div>
+                <p>
+                    где y<sub>i</sub> — реальное значение, ŷ<sub>i</sub> — предсказанное значение.
+                </p>
+            </div>
+        </section>
+
+        <!-- Гиперпараметры -->
+        <section class="content-section">
+            <h2>⚙️ Гиперпараметры</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>Описание</th>
+                            <th>Диапазон</th>
+                            <th>Влияние</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>alpha</code></td>
+                            <td>Сила L2-регуляризации (Ridge)</td>
+                            <td>0 — 100</td>
+                            <td>Больше alpha = проще модель (борьба с переобучением)</td>
+                        </tr>
+                        <tr>
+                            <td><code>fit_intercept</code></td>
+                            <td>Обучать свободный член (b)</td>
+                            <td>True / False</td>
+                            <td>Обычно True, кроме случаев центрированных данных</td>
+                        </tr>
+                        <tr>
+                            <td><code>max_iter</code></td>
+                            <td>Максимум итераций оптимизации</td>
+                            <td>100 — 10000</td>
+                            <td>Больше итераций = лучше сходимость</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Метрики качества -->
+        <section class="content-section">
+            <h2>Метрики качества для регрессии</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Метрика</th>
+                            <th>Формула</th>
+                            <th>Интерпретация</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MSE</strong></td>
+                            <td>Σ(y - ŷ)² / n</td>
+                            <td>Средний квадрат ошибки. Чем меньше, тем лучше</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RMSE</strong></td>
+                            <td>√MSE</td>
+                            <td>Ошибка в тех же единицах, что и target. Интуитивно понятна</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MAE</strong></td>
+                            <td>Σ|y - ŷ| / n</td>
+                            <td>Средняя абсолютная ошибка. Менее чувствительна к выбросам</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R²</strong></td>
+                            <td>1 - SS<sub>res</sub>/SS<sub>tot</sub></td>
+                            <td>Доля дисперсии, объяснённая моделью. 1 = идеально, 0 = бесполезно</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Плюсы и минусы -->
+        <section class="content-section">
+            <h2>Плюсы и Минусы</h2>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>✅ Преимущества</h3>
+                    <ul>
+                        <li>Простота интерпретации коэффициентов</li>
+                        <li>Быстрое обучение и предсказание</li>
+                        <li>Хорошая база для более сложных моделей</li>
+                        <li>Работает с небольшими выборками</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>❌ Недостатки</h3>
+                    <ul>
+                        <li>Предполагает линейную зависимость</li>
+                        <li>Чувствительна к выбросам (особенно MSE)</li>
+                        <li>Требует масштабирования признаков при регуляризации</li>
+                        <li>Не работает с категориальным target</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Призыв к действию -->
+        <section class="content-section cta-section">
+            <h2>Готовы попробовать?</h2>
+            <p>Обучите модель линейной регрессии на своих данных прямо сейчас!</p>
+            <div class="cta-buttons">
+                <a href="../models/LinearRegression_model.html" class="btn btn-primary btn-large">
+                    Перейти к обучению модели
+                </a>
+                <a href="../main.html" class="btn btn-outline btn-large">
+                    ← Вернуться к списку методов
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

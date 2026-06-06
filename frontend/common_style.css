@@ -28,9 +28,10 @@ nav {
 }
 
 .nav-links a {
+    border: 2px solid #8598ee;
     color: white;
     text-decoration: none;
-    padding: 8px 16px;
+    padding: 6px 16px;
     border-radius: 5px;
     transition: background 0.3s;
 }

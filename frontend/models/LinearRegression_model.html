@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ML Platform - Hello World</title>
+    <title>Линейная регрессия</title>
     <link rel="stylesheet" type="text/css" href="model_style.css">
     <script src="LogisticRegression_model.js" defer></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -13,9 +13,9 @@
 <body>
     <div class="container">
         <h1>ML Platform</h1>
-        <h2>логистическая регрессия</h2>
-        <div style="margin-bottom: 20px;">
-            <a href="../learning/LogisticRegression_learning.html" class="btn btn-outline">← Вернуться к теории</a>
+        <h2>Линейная регрессия</h2>
+        <div>
+            <a href="../learning/LinearRegression_learning.html" class="btn btn-outline">← Вернуться к теории</a>
         </div>
         <!--Настройка модели-->
         <div class="model-settings" id="modelSettings">
@@ -23,9 +23,9 @@
     
             <!-- Выбор параметра C (регуляризация) -->
             <section>
-                <label class="important-label">Сила регуляризации (C):</label>
-                <input type="number" id="paramC" min="0.01" max="100" step="0.01" value="1.0">
-                <small id="cError"> C должен быть от 0.01 до 1000 </small>
+                <label class="important-label">Cила регуляризации (alpha)::</label>
+                <input type="number" id="paramAlpha" min="0.01" max="100" step="0.01" value="1.0">
+                <small id="alphaError"> alpha должен быть от 0.01 до 100 </small>
             </section>
             
             <!-- Выбор типа регуляризации -->
@@ -50,13 +50,13 @@
                 <label class="important-label">Доля тестовой выборки (test_size):</label>
                 <input type="range" id="paramTestSize" min="0.1" max="0.5" step="0.05" value="0.2"
                 oninput="document.getElementById('testSizeValue').textContent = (this.value * 100).toFixed(0) + '%'">
-                <span class="value">Значение: <strong id="testSizeValue">20%</strong></span>
+                <span>Значение: <strong id="testSizeValue">20%</strong></span>
             </section>
 
-            <section style="display: flex;">
+            <section>
                 <label class="checkBox-label" style="font-weight: bold; color: #667eea;">
-                    Установить веса для классов
-                    <input type="checkbox" id="classWeight">
+                    Обучать свободный член
+                    <input type="checkbox" id="paramFitIntercept" checked>
                 </label>
             </section>
         </div>
@@ -117,16 +117,10 @@
                 <span class="result-value" id="message">-</span>
             </div>
 
-
             <div class="result-item">
                 <span class="result-label">Точность (Accuracy):</span>
                 <span class="result-value" id="accuracy">-</span>
             </div>
-            <div class="result-item">
-                <span class="result-label">ROC-AUC:</span>
-                <span class="result-value" id="rocAuc">-</span>
-            </div>
-
 
             <div class="result-item">
                 <span class="result-label">Размер обучающей выборки:</span>
@@ -141,6 +135,29 @@
                 <span class="result-value" id="features">-</span>
             </div>
 
+            <!-- Метрики регрессии -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">R² Score</div>
+                    <div class="metric-value" id="r2Score">-</div>
+                    <small class="metric-hint">Доля объяснённой дисперсии (1 = идеально)</small>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">RMSE</div>
+                    <div class="metric-value" id="rmse">-</div>
+                    <small class="metric-hint">Средняя ошибка в единицах target</small>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">MAE</div>
+                    <div class="metric-value" id="mae">-</div>
+                    <small class="metric-hint">Средняя абсолютная ошибка</small>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">MSE</div>
+                    <div class="metric-value" id="mse">-</div>
+                    <small class="metric-hint">Средний квадрат ошибки</small>
+                </div>
+            </div>
 
             <!-- Матрица ошибок (график) -->
             <div class="chart-container" id="confusionMatrixChart" style="display:none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
