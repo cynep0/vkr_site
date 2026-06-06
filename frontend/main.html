@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предиктивный анализ</title>
+    <link rel="stylesheet" href="common_style.css">
+</head>
+<body>
+    <!-- Навигация (единая для всех страниц) -->
+    <nav>
+        <div class="nav-brand">ML Platform</div>
+        <div class="nav-links">
+            <a href="main.html" class="active">Главная</a>
+            <a href="#about">ℹ️ О проекте</a>
+        </div>
+    </nav>
+
+    <header>
+        <h1>Предиктивный анализ</h1>
+        <p>Интерактивная платформа для изучения методов машинного обучения</p>
+    </header>
+
+    <!-- Основной контент -->
+    <main>
+        <!-- Что такое предиктивный анализ -->
+        <section class="content-section">
+            <h2>Что такое предиктивный анализ?</h2>
+            <div class="info-card">
+                <p>
+                    <strong>Предиктивный анализ (Predictive Analytics)</strong> — это раздел анализа данных, 
+                    который использует исторические данные, статистические алгоритмы и методы машинного обучения 
+                    для определения вероятности будущих исходов.
+                </p>
+                <p>
+                    <strong>Цель:</strong> Не просто описать, что произошло, а спрогнозировать, что произойдёт!
+                </p>
+            </div>
+        </section>
+
+        <!-- Отличия от других видов аналитики -->
+        <section class="content-section">
+            <h2>Виды аналитики данных</h2>
+            <div class="analytics-types">
+                <div class="type-card">
+                    <h3>Описательная</h3>
+                    <p>Что произошло?</p>
+                    <small>Отчёты, дашборды, статистика</small>
+                </div>
+                <div class="type-card">
+                    <h3>Диагностическая</h3>
+                    <p>Почему произошло?</p>
+                    <small>Анализ причин, поиск скрытых зависимостей</small>
+                </div>
+                <div class="type-card active">
+                    <h3>Предиктивная</h3>
+                    <p>Что произойдёт?</p>
+                    <small>Прогнозы, модели машинного обучения</small>
+                </div>
+                <div class="type-card">
+                    <h3>Предписывающая</h3>
+                    <p>Что делать?</p>
+                    <small>Рекомендации, оптимизация</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Методы машинного обучения -->
+        <section class="content-section" id="methods">
+            <h2>Методы машинного обучения</h2>
+            <p class="section-intro">
+                Выберите алгоритм для изучения теории и практического применения:
+            </p>
+            
+            <div class="methods-grid">
+                <!-- Логистическая регрессия -->
+                <div class="method-card">
+                    <div class="method-header">
+                        <span class="method-badge classification">Классификация</span>
+                    </div>
+                    <h3>Логистическая регрессия</h3>
+                    <p>
+                        Линейный алгоритм для классификации. 
+                        Оценивает вероятность принадлежности к классу.
+                    </p>
+                    <ul class="method-features">
+                        <li>✅ Быстрая и интерпретируемая</li>
+                        <li>✅ Хороший базовый алгоритм</li>
+                        <li>⚠️ Работает только на линейно разделимых данных</li>
+                    </ul>
+                    <div class="method-actions">
+                        <a href="learning/LogisticRegression_learning.html" class="btn btn-outline">Изучить теорию</a>
+                        <a href="models/LogisticRegression_model.html" class="btn btn-primary">Обучить модель</a>
+                    </div>
+                </div>
+
+                <!-- Случайный лес (заготовка) -->
+                <div class="method-card">
+                    <div class="method-header">
+                        <span class="method-badge classification">Классификация</span>
+                        <span class="method-badge regression">Регрессия</span>
+                    </div>
+                    <h3>Случайный лес</h3>
+                    <p>
+                        Ансамбль деревьев решений. Усредняет результат множества моделей.
+                    </p>
+                    <ul class="method-features">
+                        <li>✅ Высокая точность</li>
+                        <li>✅ Устойчив к переобучению</li>
+                        <li>⚠️ Медленнее линейных моделей</li>
+                    </ul>
+                    <div class="method-actions">
+                        <a href="#" class="btn btn-outline">Изучить теорию</a>
+                        <a href="train.html?model=random_forest" class="btn btn-primary">Обучить модель</a>
+                    </div>
+                </div>
+
+                <!-- k-NN (заготовка) -->
+                <div class="method-card">
+                    <div class="method-header">
+                        <span class="method-badge classification">Классификация</span>
+                    </div>
+                    <h3>k-Ближайших соседей</h3>
+                    <p>
+                        Классифицирует объект по классам его ближайших соседей в пространстве.
+                    </p>
+                    <ul class="method-features">
+                        <li>✅ Простой и понятный</li>
+                        <li>✅ Не требует обучения</li>
+                        <li>⚠️ Медленный на больших данных</li>
+                    </ul>
+                    <div class="method-actions">
+                        <a href="#" class="btn btn-outline">Изучить теорию</a>
+                        <a href="train.html?model=knn" class="btn btn-primary">Обучить модель</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- О проекте -->
+        <section id="about" class="content-section">
+            <h2>О проекте</h2>
+            <div class="info-card">
+                <p>
+                    Данная платформа разработана в рамках выпускной квалификационной работы 
+                    бакалавра направления «Прикладная математика и информатика».
+                </p>
+                <p>
+                    <strong>Цель:</strong> Создание интерактивного образовательного инструмента 
+                    для изучения методов предиктивного анализа через практику.
+                </p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

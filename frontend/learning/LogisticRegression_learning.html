@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логистическая регрессия</title>
+    <link rel="stylesheet" href="../common_style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-brand">ML Platform</div>
+        <div class="nav-links">
+            <a href="../main.html">Главная</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Заголовок -->
+        <section class="content-section">
+            <div class="breadcrumb">
+                <a href="../main.html">Главная</a> → 
+                <a href="../main.html#methods">Методы</a> → 
+                <span>Логистическая регрессия</span>
+            </div>
+            
+            <h1>Логистическая регрессия</h1>
+        </section>
+
+        <!-- Что это такое -->
+        <section class="content-section">
+            <h2>Что это такое?</h2>
+            <div class="info-card">
+                <p>
+                    <strong>Логистическая регрессия</strong> — это статистическая модель, которая используется 
+                    для предсказания вероятности принадлежности объекта к одному из двух классов.
+                </p>
+                <div class="highlight-box">
+                    Несмотря на название «регрессия», это алгоритм <strong>классификации</strong>!
+                </div>
+            </div>
+        </section>
+
+        <!-- Математическая формула -->
+        <section class="content-section">
+            <h2>Математическая основа</h2>
+            <div class="formula-card">
+                <h3>Сигмоидная функция</h3>
+                <div class="formula">
+                    <p>P(y=1|x) = σ(w·x + b) = 1 / (1 + e<sup>-(w·x + b)</sup>)</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>P(y=1|x)</strong> — вероятность принадлежности к классу 1</li>
+                        <li><strong>w</strong> — веса модели (коэффициенты)</li>
+                        <li><strong>x</strong> — признаки объекта</li>
+                        <li><strong>b</strong> — свободный член (bias)</li>
+                        <li><strong>σ</strong> — сигмоидная функция (сжимает в диапазон [0, 1])</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Гиперпараметры -->
+        <section class="content-section">
+            <h2>⚙️ Гиперпараметры</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>Описание</th>
+                            <th>Диапазон</th>
+                            <th>Влияние</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>C</code></td>
+                            <td>Обратная сила регуляризации</td>
+                            <td>0.01 — 1000</td>
+                            <td>Меньше C = проще модель (борьба с переобучением)</td>
+                        </tr>
+                        <tr>
+                            <td><code>max_iter</code></td>
+                            <td>Максимум итераций оптимизации</td>
+                            <td>100 — 10000</td>
+                            <td>Больше итераций = лучше сходимость</td>
+                        </tr>
+                        <tr>
+                            <td><code>penalty</code></td>
+                            <td>Тип регуляризации</td>
+                            <td>L1, L2, None</td>
+                            <td>L1 = отбор признаков, L2 = стабильность</td>
+                        </tr>
+                        <tr>
+                            <td><code>class_weight</code></td>
+                            <td>Учёт дисбаланса классов</td>
+                            <td>balanced, None</td>
+                            <td>balanced = лучше для редких классов</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Плюсы и минусы -->
+        <section class="content-section">
+            <h2>Плюсы и Минусы</h2>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>✅ Преимущества</h3>
+                    <ul>
+                        <li>Быстрое обучение и предсказание</li>
+                        <li>Интерпретируемые коэффициенты</li>
+                        <li>Хорошо работает на линейных данных</li>
+                        <li>Меньше склонна к переобучению с регуляризацией</li>
+                        <li>Выдаёт вероятности, а не только классы</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>❌ Недостатки</h3>
+                    <ul>
+                        <li>Работает только на линейно разделимых данных</li>
+                        <li>Чувствительна к выбросам</li>
+                        <li>Требует масштабирования признаков</li>
+                        <li>Плохо работает с нелинейными зависимостями</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Призыв к действию -->
+        <section class="content-section cta-section">
+            <h2>Готовы попробовать?</h2>
+            <p>Обучите модель логистической регрессии на своих данных прямо сейчас!</p>
+            <div class="cta-buttons">
+                <a href="../models/LogisticRegression_model.html" class="btn btn-primary btn-large">
+                    Перейти к обучению модели
+                </a>
+                <a href="../main.html" class="btn btn-outline btn-large">
+                    ← Вернуться к списку методов
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
