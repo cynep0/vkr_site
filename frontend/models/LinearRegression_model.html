@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Линейная регрессия</title>
     <link rel="stylesheet" type="text/css" href="model_style.css">
-    <script src="LogisticRegression_model.js" defer></script>
+    <script src="LinearRegression_model.js" defer></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 
@@ -21,9 +21,9 @@
         <div class="model-settings" id="modelSettings">
             <h3>⚙️ Настройки модели</h3>
     
-            <!-- Выбор параметра C (регуляризация) -->
-            <section>
-                <label class="important-label">Cила регуляризации (alpha)::</label>
+            <!-- Выбор параметра alpha (регуляризация) -->
+            <section id="alphaGroup">
+                <label class="important-label">Cила регуляризации (alpha):</label>
                 <input type="number" id="paramAlpha" min="0.01" max="100" step="0.01" value="1.0">
                 <small id="alphaError"> alpha должен быть от 0.01 до 100 </small>
             </section>
@@ -39,7 +39,7 @@
             </section>
             
             <!-- Максимум итераций -->
-            <section>
+            <section id="maxIterGroup">
                 <label class="important-label">Макс. итераций (max_iter):</label>
                 <input type="number" id="paramMaxIter" min="100" max="10000" step="100" value="1000">
                 <small id="maxIterError"> max_iter должен быть от 100 до 10000</small>
@@ -118,11 +118,6 @@
             </div>
 
             <div class="result-item">
-                <span class="result-label">Точность (Accuracy):</span>
-                <span class="result-value" id="accuracy">-</span>
-            </div>
-
-            <div class="result-item">
                 <span class="result-label">Размер обучающей выборки:</span>
                 <span class="result-value" id="trainSize">-</span>
             </div>
@@ -134,70 +129,57 @@
                 <span class="result-label">Признаки:</span>
                 <span class="result-value" id="features">-</span>
             </div>
+        </div>
 
-            <!-- Метрики регрессии -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-label">R² Score</div>
-                    <div class="metric-value" id="r2Score">-</div>
-                    <small class="metric-hint">Доля объяснённой дисперсии (1 = идеально)</small>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">RMSE</div>
-                    <div class="metric-value" id="rmse">-</div>
-                    <small class="metric-hint">Средняя ошибка в единицах target</small>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">MAE</div>
-                    <div class="metric-value" id="mae">-</div>
-                    <small class="metric-hint">Средняя абсолютная ошибка</small>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">MSE</div>
-                    <div class="metric-value" id="mse">-</div>
-                    <small class="metric-hint">Средний квадрат ошибки</small>
-                </div>
+    
+        <div class="result-box">
+            <h3>Метрики регрессии</h3>
+            <div class="result-item">
+                <span class="result-label">R² Score</span>
+                <span class="result-value" id="r2Score">-</span>
+                <small class="metric-hint">Доля объяснённой дисперсии (1 = идеально)</small>
+            </div>
+            <div class="result-item">
+                <span class="result-label">RMSE</span>
+                <span class="result-value" id="rmse">-</span>
+                <small class="metric-hint">Средняя ошибка в единицах target</small>
+            </div>
+            <div class="result-item">
+                <span class="result-label">MAE</span>
+                <span class="result-value" id="mae">-</span>
+                <small class="metric-hint">Средняя абсолютная ошибка</small>
+            </div>
+            <div class="result-item">
+                <span class="result-label">MSE</span>
+                <span class="result-value" id="mse">-</span>
+                <small class="metric-hint">Средний квадрат ошибки</small>
             </div>
 
-            <!-- Матрица ошибок (график) -->
-            <div class="chart-container" id="confusionMatrixChart" style="display:none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 15px; color: #333;">Матрица ошибок</h3>
-                <div id="confusionMatrixPlot" style="width: 100%; height: 400px;"></div>
-                <small style="color: #666; display: block; margin-top: 10px;">
-                    Диагональ — правильные предсказания. Чем темнее ячейка, тем больше объектов.
-                </small>
-
-                <hr>
-
-                <div class="result-item">
-                    <span class="result-label">Точность (Precision):</span>
-                    <span class="result-value" id="precision">-</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Полнота (Recall ):</span>
-                    <span class="result-value" id="recall">-</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">F1-Score:</span>
-                    <span class="result-value" id="f1Score">-</span>
-                </div>
+            <div class="chart-container" id="predictedVsActualChart">
+                <h3>Предсказание vs Реальность</h3>
+                <div id="predictedVsActualPlot" class="chart"></div>
+                <small class="chart-hint">Точки на диагонали = идеальное предсказание</small>
             </div>
 
-            <!-- Важность признаков (график) -->
-            <div class="chart-container" id="featureImportanceChart" style="display:none; margin: 20px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 15px; color: #333;">Важность признаков</h3>
-                <span>Коэффициенты модели: влияние признаков на прогноз</span>
-                <div id="featureImportancePlot" style="width: 100%; height: 400px;"></div>
-                <small style="color: #666; display: block; margin-top: 10px;">
-                    Положительный коэффициент → признак увеличивает вероятность положительного класса.
-                </small>
+            <div class="chart-container" id="residualsChart">
+                <h3>График остатков</h3>
+                <div id="residualsPlot" class="chart"></div>
+                <small class="chart-hint"> Остатки должны быть случайно разбросаны вокруг 0</small>
             </div>
+            
+            <div class="chart-container" id="featureImportanceChart">
+                <h3>Важность признаков</h3>
+                <div id="featureImportancePlot" class="chart"></div>
+                <small>Положительный коэффициент → увеличивает прогноз</small>
+            </div>
+        </div>
 
-            <!-- Информация о сходимости -->
-            <div class="convergence-info" id="convergenceInfo" style="margin: 20px 0; padding: 15px; background: #e8f5e9; border-radius: 10px; border-left: 4px solid #4caf50;">
-                <h4 style="margin-bottom: 10px; color: #2e7d32;">Статус обучения</h4>
+        <!-- Информация о сходимости -->
+        <div class="result-box">
+            <div class="convergence-info" id="convergenceInfo">
+                <h4>Статус обучения</h4>
                 <p><strong>Итераций:</strong> <span id="nIter">-</span></p>
-                <p><strong>Сходимость:</strong> <span id="converged">-</span></p>
+                <p><strong>Сходимость:</strong> <span id="converged">-</span></p>   
             </div>
         </div>
     </div>

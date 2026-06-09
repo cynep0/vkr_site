@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     // 1. Получение элементов
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -8,8 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const loading = document.getElementById('loading');
     const columnSelection = document.getElementById('columnSelection');
     const trainButton = document.getElementById('trainButton');
-    const resultBox = document.getElementById('resultBox');
+    const resultBoxes = document.querySelectorAll('.result-box');
     const errorBox = document.getElementById('error');
+
+    const alphaGroup = document.getElementById('alphaGroup');
+    const maxIterGroup = document.getElementById('maxIterGroup');
+    const modelSelect = document.getElementById('paramPenalty');
+    const alphaInput = document.getElementById('paramAlpha');
+    const maxIterInput = document.getElementById('paramMaxIter');
     
     const API_URL = 'http://127.0.0.1:8000/linear_regression/';
 
@@ -21,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
         features: []
     };
     
+    updateParamVisibility();
+
     // Клик по зоне загрузки
     dropZone.addEventListener('click', () => fileInput.click());
     
@@ -70,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadColumnNames(file);
         
         // Скрываем старые результаты
-        resultBox.classList.remove('show');
+        resultBoxes.forEach(box => {box.classList.remove('show');})
         errorBox.classList.remove('show');
         
         // Зона загрузки становится менее заметной
@@ -162,17 +169,17 @@ document.addEventListener('DOMContentLoaded', () => {
         let isValid = true;
         
         // === Валидация C ===
-        const cInput = document.getElementById('paramC');
-        const cError = document.getElementById('cError');
-        const cValue = parseFloat(cInput.value);
+        const alphaInput = document.getElementById('paramAlpha');
+        const alphaError = document.getElementById('alphaError');
+        const alphaValue = parseFloat(alphaInput.value);
         
-        if (isNaN(cValue) || cValue < 0.01 || cValue > 1000) {
-            cError.style.display = 'block';
-            cInput.style.borderColor = '#cc0000';
+        if (isNaN(alphaValue) || alphaValue < 0.01 || alphaValue > 1000) {
+            alphaError.style.display = 'block';
+            alphaInput.style.borderColor = '#cc0000';
             isValid = false;
         } else {
-            cError.style.display = 'none';
-            cInput.style.borderColor = '#ddd';
+            alphaError.style.display = 'none';
+            alphaInput.style.borderColor = '#ddd';
         }
         
         // === Валидация max_iter ===
@@ -195,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Обучение модели (по кнопке)
     window.trainModel = async function() {
         // Сброс интерфейса
-        resultBox.classList.remove('show');
+        resultBoxes.forEach(box => {box.classList.remove('show');})
         errorBox.classList.remove('show');
 
         if (!selectedFile) {
@@ -222,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', selectedFile);
         
         // === Добавляем гиперпараметры ===
-        formData.append('C', document.getElementById('paramC').value);
+        formData.append('alpha', document.getElementById('paramAlpha').value);
         formData.append('penalty', document.getElementById('paramPenalty').value);
         formData.append('max_iter', document.getElementById('paramMaxIter').value);
         formData.append('test_size', document.getElementById('paramTestSize').value);
@@ -234,8 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('target_column', selectedColumns.target);
         formData.append('feature_columns', JSON.stringify(selectedColumns.features));
 
-        const classWeightChecked = document.getElementById('classWeight').checked;
-        formData.append('class_weight', classWeightChecked ? 'balanced' : 'None');
+        formData.append('fit_intercept', document.getElementById('paramFitIntercept').checked);
 
         try {
             // === Отправка запроса ===
@@ -249,11 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(data.detail || 'Ошибка обучения');
             }
-            
             // === Отображение результатов ===
             displayResults(data);
             
         } catch (error) {
+            console.log("ЭЭЭЭЭ")
             showError(error.message);
         } finally {
             loading.classList.remove('show');
@@ -264,83 +270,119 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Отображение результатов
     function displayResults(data) {
-        document.getElementById('accuracy').textContent = (data.accuracy * 100).toFixed(2) + '%';
         document.getElementById('trainSize').textContent = data.train_size;
         document.getElementById('testSize').textContent = data.test_size;
         document.getElementById('features').textContent = data.features.join(', ');
         document.getElementById('message').textContent = data.message;
-        
-        document.getElementById('precision').textContent = data.precision.toFixed(4);
-        document.getElementById('recall').textContent = data.recall.toFixed(4);
-        document.getElementById('f1Score').textContent = data.f1_score.toFixed(4);
-        document.getElementById('rocAuc').textContent = data.roc_auc !== null ? data.roc_auc.toFixed(4) : 'N/A';
-
-        // 3. Матрица ошибок (график)
-        if (data.confusion_matrix && data.confusion_matrix.length > 0) {
-            drawConfusionMatrix(data.confusion_matrix, data.confusion_matrix_labels);
-            document.getElementById('confusionMatrixChart').style.display = 'block';
+        document.getElementById('r2Score').textContent = data.r2_score?.toFixed(4) || '-';
+        document.getElementById('rmse').textContent = data.rmse?.toFixed(4) || '-';
+        document.getElementById('mae').textContent = data.mae?.toFixed(4) || '-';
+        document.getElementById('mse').textContent = data.mse?.toFixed(4) || '-';
+        // Графики
+        if (data.predicted_vs_actual) {
+           drawPredictedVsActual(data.predicted_vs_actual);
         }
-        
-        // 4. Важность признаков (график)
+        if (data.residuals) {
+           drawResiduals(data.residuals);
+        }
         if (data.feature_importance && Object.keys(data.feature_importance).length > 0) {
-            drawFeatureImportance(data.feature_importance);
-            document.getElementById('featureImportanceChart').style.display = 'block';
+           drawFeatureImportance(data.feature_importance);
         }
-        
-        // 5. Информация о сходимости
         if (data.convergence) {
             document.getElementById('nIter').textContent = data.convergence.n_iter || 'N/A';
             document.getElementById('converged').textContent = data.convergence.converged ? 'Да' : 'Нет';
             document.getElementById('convergenceInfo').style.display = 'block';
         }
-
-        resultBox.classList.add('show');
+        resultBoxes.forEach(box => {box.classList.add('show');})
     }
 
-    // === Функция рисования матрицы ошибок (Plotly) ===
-    function drawConfusionMatrix(matrix, labels) {
-        // Если метки не переданы, используем [0, 1]
-        const classLabels = labels || [0, 1];
-
-        // Создаем текст для ячеек
-        const zText = matrix.map(row => row.map(val => val.toString()));
+    // === График: Predicted vs Actual ===
+    function drawPredictedVsActual(data) {
+        const actual = data.map(d => d.actual);
+        const predicted = data.map(d => d.predicted);
+        const minVal = Math.min(...actual, ...predicted);
+        const maxVal = Math.max(...actual, ...predicted);
 
         const trace = {
-            x: classLabels,
-            y: classLabels,
-            z: matrix,
-            text: zText,
-            type: 'heatmap',
-            colorscale: 'Blues',
-            showscale: true,
-            texttemplate: '%{text}',
-            textfont: {size: 14, color: matrix.some(row => row.some(v => v > 10)) ? 'white' : 'black'}
+            x: actual,
+            y: predicted,
+            mode: 'markers',
+            type: 'scatter',
+            marker: { color: 'rgba(102, 126, 234, 0.7)', size: 8 },
+            name: 'Предсказания'
+        };
+
+        const diagonal = {
+            x: [minVal, maxVal],
+            y: [minVal, maxVal],
+            mode: 'lines',
+            type: 'scatter',
+            line: { color: '#ff6b6b', width: 2, dash: 'dash' },
+            name: 'Идеальное предсказание'
         };
 
         const layout = {
-            xaxis: {title: 'Предсказанный класс'},
-            yaxis: {title: 'Реальный класс', autorange: 'reversed'},
-            margin: {t: 50, l: 50, r: 20, b: 50}
+            title: 'Предсказание vs Реальность',
+            xaxis: { title: 'Реальное значение' },
+            yaxis: { title: 'Предсказанное значение' },
+            margin: { t: 40, l: 50, r: 20, b: 50 }
         };
 
-        Plotly.newPlot('confusionMatrixPlot', [trace], layout, {responsive: true});
+        Plotly.newPlot('predictedVsActualPlot', [diagonal, trace], layout, { responsive: true });
 
         setTimeout(() => {
-            Plotly.Plots.resize('confusionMatrixPlot');
+            Plotly.Plots.resize('predictedVsActualPlot');
         }, 100);
+
+        document.getElementById('predictedVsActualChart').style.display = 'block';
     }
 
-    // === Функция рисования важности признаков (Plotly) ===
+    // === График: Остатки ===
+    function drawResiduals(residuals) {
+        const trace = {
+            y: residuals,
+            mode: 'markers',
+            type: 'scatter',
+            marker: { 
+                color: residuals.map(r => r >= 0 ? 'rgba(76, 175, 80, 0.7)' : 'rgba(244, 67, 54, 0.7)'),
+                size: 6 
+            },
+            name: 'Остатки'
+        };
+
+        const zeroLine = {
+            x: [0, residuals.length],
+            y: [0, 0],
+            mode: 'lines',
+            type: 'scatter',
+            line: { color: '#333', width: 1, dash: 'dot' },
+            name: 'Ноль'
+        };
+
+        const layout = {
+            title: 'Остатки модели',
+            xaxis: { title: 'Индекс' },
+            yaxis: { title: 'Остаток' },
+            margin: { t: 40, l: 50, r: 20, b: 50 }
+        };
+
+        Plotly.newPlot('residualsPlot', [zeroLine, trace], layout, { responsive: true });
+
+        setTimeout(() => {
+            Plotly.Plots.resize('residualsPlot');
+        }, 100);
+
+        document.getElementById('residualsChart').style.display = 'block';
+    }
+
+    // === График: Важность признаков ===
     function drawFeatureImportance(importance) {
-        // Сортируем по абсолютному значению коэффициента (для наглядности)
         const sorted = Object.entries(importance)
             .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
-            .slice(0, 10); // Показываем топ-10 признаков
+            .slice(0, 10);
 
         const features = sorted.map(([name, _]) => name);
         const coefficients = sorted.map(([_, value]) => value);
-
-        // Цвета: зелёный для положительных, красный для отрицательных
         const colors = coefficients.map(v => v >= 0 ? 'rgba(76, 175, 80, 0.7)' : 'rgba(244, 67, 54, 0.7)');
 
         const trace = {
@@ -348,27 +390,57 @@ document.addEventListener('DOMContentLoaded', () => {
             y: features,
             type: 'bar',
             orientation: 'h',
-            marker: {color: colors},
+            marker: { color: colors },
             text: coefficients.map(v => v.toFixed(3)),
             textposition: 'auto'
         };
 
         const layout = {
-            xaxis: {title: 'Значение коэффициента'},
-            yaxis: {title: 'Признак'},
-            margin: {t: 50, l: 150, r: 20, b: 50}
+            title: 'Коэффициенты модели',
+            xaxis: { title: 'Значение' },
+            yaxis: { title: 'Признак' },
+            margin: { t: 40, l: 150, r: 20, b: 50 }
         };
 
-        Plotly.newPlot('featureImportancePlot', [trace], layout, {responsive: true});
-        
+        Plotly.newPlot('featureImportancePlot', [trace], layout, { responsive: true });
+
         setTimeout(() => {
             Plotly.Plots.resize('featureImportancePlot');
         }, 100);
+
+        document.getElementById('featureImportanceChart').style.display = 'block';
     }
+
     
     // Отображение ошибки
     function showError(message) {
         errorBox.textContent = '❌ ' + message;
         errorBox.classList.add('show');
     }
+
+    function updateParamVisibility() {
+        const type = modelSelect.value;
+        if (type === 'none') {
+            // OLS: аналитический метод
+            alphaGroup.style.display = 'none';
+            maxIterGroup.style.display = 'none';
+            alphaInput.disabled = true;
+            maxIterInput.disabled = true;
+
+        } else if (type === 'l2') {
+            // Ridge: по умолчанию аналитический, max_iter не нужен
+            alphaGroup.style.display = 'block';
+            maxIterGroup.style.display = 'none'; // Или 'block', если solver='sag'
+            maxIterInput.disabled = true;
+
+        } else if (type === 'l1') {
+            // Lasso: итерационный, оба параметра нужны
+            alphaGroup.style.display = 'block';
+            maxIterGroup.style.display = 'block';
+            alphaInput.disabled = false;
+            maxIterInput.disabled = false;
+        }
+    }
+
+    modelSelect.addEventListener('change', updateParamVisibility);
 });

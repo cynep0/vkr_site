@@ -190,6 +190,7 @@ input[type="range"] + span {
 
 .result-item {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid #e0e0e0;
@@ -207,6 +208,12 @@ input[type="range"] + span {
 .result-value {
     color: #333;
     font-weight: bold;
+}
+
+/* Добавляем стили для подсказки */
+.metric-hint {
+    width: 100%;
+    margin-top: 4px;
 }
 
 /*===== вывод результатов обучения графики =====*/
