@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const trainButton = document.getElementById('trainButton');
     const resultBox = document.getElementById('resultBox');
     const errorBox = document.getElementById('error');
+
+    const CGroup = document.getElementById('CGroup');
+    const maxIterGroup = document.getElementById('maxIterGroup');
+    const modelSelect = document.getElementById('paramPenalty');
+    const CInput = document.getElementById('paramC');;
     
     const API_URL = 'http://127.0.0.1:8000/logistic_regression/';
 
@@ -20,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         target: null,
         features: []
     };
+
+    updateParamVisibility();
     
     // Клик по зоне загрузки
     dropZone.addEventListener('click', () => fileInput.click());
@@ -370,5 +377,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function showError(message) {
         errorBox.textContent = '❌ ' + message;
         errorBox.classList.add('show');
+    }
+
+    function updateParamVisibility() {
+        const type = modelSelect.value;
+        if (type === 'none') {
+            CGroup.style.display = 'none';
+            CInput.disabled = true;
+
+        } else if (type === 'l2') {
+            CGroup.style.display = 'block';
+
+        } else if (type === 'l1') {
+            CGroup.style.display = 'block';
+            CInput.disabled = false;
+        }
     }
 });
