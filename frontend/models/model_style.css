@@ -175,7 +175,7 @@ input[type="range"] + span {
 }
 
 /*===== вывод результатов обучения =====*/
-.result-box {
+.result-box, .result-box-classification, .result-box-regression {
     margin-top: 30px;
     padding: 20px;
     background: #f8f9ff;
@@ -183,7 +183,7 @@ input[type="range"] + span {
     display: none;
 }
 
-.result-box.show {
+.result-box.show, .result-box-classification.show, .result-box-regression.show {
     display: block;
     animation: fadeIn 0.5s ease;
 }
@@ -260,7 +260,7 @@ input[type="range"] + span {
 }
 
 
-#alphaError, #cError, #maxIterError{
+#alphaError, #cError, #maxIterError, #nEstimatorsError, #maxDepthError, #minSamplesSplitError{
     color: #cc0000;
     display: none;
 }
@@ -306,6 +306,47 @@ button:active {
     background: transparent;
     border: 2px solid #667eea;
     color: #667eea;
+}
+
+/*===== Выбор задачи (случайный лес) =====*/
+.task-selector {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.task-option {
+    flex: 1;
+    min-width: 250px;
+    cursor: pointer;
+}
+
+.task-option input[type="radio"] {
+    display: none;
+}
+
+.task-card {
+    display: block;
+    padding: 20px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.task-option input[type="radio"]:checked + .task-card {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.task-card strong {
+    display: block;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 5px;
 }
 
 @keyframes fadeIn {

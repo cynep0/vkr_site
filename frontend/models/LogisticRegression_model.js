@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             targetSelect.innerHTML = '<option value="">-- Выберите столбец --</option>';
             featuresList.innerHTML = '';
 
-            // Заполняем селект целевой переменной
+            // Заполняем выбор целевой переменной
             columns.forEach((col, index) => {
                 const option = document.createElement('option');
                 option.value = col;

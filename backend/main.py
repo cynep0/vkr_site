@@ -100,6 +100,54 @@ async def train_linear_reg(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка: {str(e)}")
 
+
+@app.post("/random_forest/")
+async def train_random_forest_endpoint(
+        file: UploadFile = File(...),
+        target_column: str = Form(...),
+        feature_columns: str = Form(...),
+        task_type: str = Form("classification"),  # "classification" или "regression"
+        n_estimators: int = Form(100, ge=10, le=500),
+        max_depth: int = Form(10, ge=1, le=100),
+        min_samples_split: int = Form(2, ge=2, le=20),
+        max_features: str = Form("sqrt"),
+        test_size: float = Form(0.2, ge=0.1, le=0.5)
+):
+    import json
+    from ml_pipeline import train_random_forest
+
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(status_code=400, detail="Только CSV файлы!")
+
+    try:
+        features = json.loads(feature_columns)
+        if not isinstance(features, list) or len(features) == 0:
+            raise ValueError("feature_columns должен быть непустым списком")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Неверный формат feature_columns")
+
+    if target_column in features:
+        raise HTTPException(status_code=400, detail="Целевая переменная не должна быть в признаках!")
+
+    try:
+        result = train_random_forest(
+            file.file,
+            target_column=target_column,
+            feature_columns=features,
+            task_type=task_type,
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            min_samples_split=min_samples_split,
+            max_features=max_features,
+            test_size=test_size
+        )
+        return JSONResponse(content=result)
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка обработки: {str(e)}")
+
 @app.get("/health/")
 def health_check():
     return {"status": "ok"}

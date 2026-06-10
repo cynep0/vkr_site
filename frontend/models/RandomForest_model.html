@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Линейная регрессия</title>
+    <link rel="stylesheet" type="text/css" href="model_style.css">
+    <script src="RandomForest_model.js" defer></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ML Platform</h1>
+        <h2>Случайный лес</h2>
+        <div>
+            <a href="../learning/RandomForest_learning.html" class="btn btn-outline">← Вернуться к теории</a>
+        </div>
+        <!--Настройка модели-->
+        <div class="model-settings" id="modelSettings">
+            <h3>⚙️ Настройки модели</h3>
+
+            <section class="step-section" id="taskSection">
+                <h2>Тип задачи</h2>
+                <div class="task-selector">
+                    <label class="task-option">
+                        <input type="radio" name="taskType" value="classification" checked>
+                        <div class="task-card">
+                            <strong>Классификация</strong>
+                            <small>Предсказание категории (0/1, Да/Нет)</small>
+                        </div>
+                    </label>
+                    <label class="task-option">
+                        <input type="radio" name="taskType" value="regression">
+                        <div class="task-card">
+                            <strong>Регрессия</strong>
+                            <small>Предсказание числа</small>
+                        </div>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Количество деревьев -->
+            <section>
+                <label class="important-label">Количество деревьев (n_estimators ):</label>
+                <input type="number" id="paramNEstimators" min="10" max="500" step="1" value="100">
+                <small id="nEstimatorsError"> n_estimators должен быть от 10 до 500 </small>
+            </section>
+
+             <!-- Максимальная глубина -->
+            <section>
+                <label class="important-label">Максимальная глубина дерева (max_depth):</label>
+                <input type="number" id="paramMaxDepth" min="0" max="50" step="1" value="10">
+                <small>0 = без ограничений (None). Меньше глубина = проще модель </small>
+                <small id="maxDepthError">max_depth должен быть от 0 до 50</small>
+            </section>
+
+            <!-- Минимальное число объектов для разбиения -->
+            <section>
+                <label class="important-label">Мин. объектов для разделения (min_samples_split):</label>
+                <input type="number" id="paramMinSamplesSplit" min="2" max="20" step="1" value="2">
+                <small id="minSamplesSplitError"> min_samples_split должен быть от 2 до 20 </small>
+            </section>
+
+            <!-- Максимальное число признаков -->
+            <section>
+                <label class="important-label">Макс. признаков для разбиения (max_features):</label>
+                <select id="paramMaxFeatures">
+                    <option value="sqrt">sqrt (√n) — рекомендуется для классификации</option>
+                    <option value="log2">log2 (log₂n)</option>
+                    <option value="1.0">все признаки</option>
+                </select>
+            </section>
+            
+            <!-- Размер тестовой выборки (educational parameter) -->
+            <section>
+                <label class="important-label">Доля тестовой выборки (test_size):</label>
+                <input type="range" id="paramTestSize" min="0.1" max="0.5" step="0.05" value="0.2"
+                oninput="document.getElementById('testSizeValue').textContent = (this.value * 100).toFixed(0) + '%'">
+                <span>Значение: <strong id="testSizeValue">20%</strong></span>
+            </section>
+        </div>
+
+        <!--Загрузка файла-->
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">📁</div>
+            <div class="drop-zone-text">
+                Перетащите файл сюда или <span class="drop-zone-highlight">выберите файл</span>
+            </div>
+            <input type="file" id="fileInput" accept=".csv">
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            ✅ Файл загружен: <strong id="fileName">-</strong>
+        </div>
+
+        <div class="column-selection", id="columnSelection">
+            <h3> Выбор столбцов</h3>
+            
+                <!-- Целевая переменная -->
+                <section>
+                    <label class="important-label">Целевая переменная:</label>
+                    <select id="targetColumn">
+                        <option value="">-- Выберите столбец --</option>
+                    </select>
+                    <small>Столбец, который нужно предсказать</small>
+                </section>
+
+                <!-- Признаки (Features) -->
+                <section>
+                    <label class="important-label"> Признаки (на основе чего предсказываем):</label>
+                    <div class ="features-list" id="featuresList">
+                        <!-- Чекбоксы будут добавлены через JS -->
+                    </div>
+                    <small>Выберите минимум 1 признак</small>
+                </section>
+
+            <!-- Индикатор выбора -->
+            <div id="columnWarning">
+                <strong>Внимание:</strong> <span id="warningText"></span>
+            </div>
+        </div>
+
+        <button id="trainButton" onclick="trainModel()">Обучить модель </button>
+        
+        <div class="loading" id="loading">
+            ⏳ Обучение модели... Пожалуйста, подождите
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <!--вывод результатов обучения-->
+        <div class="result-box" id="resultBox">
+            <h3>Результаты обучения</h3>
+            <div class="result-item">
+                <span class="result-label">Статус:</span>
+                <span class="result-value" id="message">-</span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Размер обучающей выборки:</span>
+                <span class="result-value" id="trainSize">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Размер тестовой выборки:</span>
+                <span class="result-value" id="testSize">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Признаки:</span>
+                <span class="result-value" id="features">-</span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Количество деревьев:</span>
+                <span class="result-value" id="nTrees">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Максимальная глубина:</span>
+                <span class="result-value" id="maxDepth">-</span>
+            </div>
+
+            <!-- Важность признаков (график) -->
+            <div class="chart-container" id="featureImportanceChart">
+                <h3>Важность признаков</h3>
+                <span>Коэффициенты модели: влияние признаков на прогноз</span>
+                <div id="featureImportancePlot" class="chart"></div>
+                <small class="chart-hint">Чем больше столбец, тем больше признак влияет на прогноз</small>
+            </div>
+        </div>
+
+        <div class="result-box-classification" id="resultBoxClassification">
+            <h3>Метрики классификации</h3>
+            <div class="result-item">
+                <span class="result-label">Точность (Accuracy):</span>
+                <span class="result-value" id="accuracy">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">ROC-AUC:</span>
+                <span class="result-value" id="rocAuc">-</span>
+            </div>
+
+            <!-- Матрица ошибок (график) -->
+            <div class="chart-container" id="confusionMatrixChart">
+                <h3>Матрица ошибок</h3>
+                <div id="confusionMatrixPlot" class="chart"></div>
+                <small>
+                    Диагональ — правильные предсказания. Чем темнее ячейка, тем больше объектов.
+                </small>
+
+                <hr>
+
+                <div class="result-item">
+                    <span class="result-label">Точность (Precision):</span>
+                    <span class="result-value" id="precision">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Полнота (Recall ):</span>
+                    <span class="result-value" id="recall">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">F1-Score:</span>
+                    <span class="result-value" id="f1Score">-</span>
+                </div>
+            </div>
+        </div>
+
+    
+        <div class="result-box-regression" id="resultBoxRegression">
+            <h3>Метрики регрессии</h3>
+            <div class="result-item">
+                <span class="result-label">R² Score</span>
+                <span class="result-value" id="r2Score">-</span>
+                <small class="metric-hint">Доля объяснённой дисперсии (1 = идеально)</small>
+            </div>
+            <div class="result-item">
+                <span class="result-label">RMSE</span>
+                <span class="result-value" id="rmse">-</span>
+                <small class="metric-hint">Средняя ошибка в единицах target</small>
+            </div>
+            <div class="result-item">
+                <span class="result-label">MAE</span>
+                <span class="result-value" id="mae">-</span>
+                <small class="metric-hint">Средняя абсолютная ошибка</small>
+            </div>
+            <div class="result-item">
+                <span class="result-label">MSE</span>
+                <span class="result-value" id="mse">-</span>
+                <small class="metric-hint">Средний квадрат ошибки</small>
+            </div>
+
+            <div class="chart-container" id="predictedVsActualChart">
+                <h3>Предсказание vs Реальность</h3>
+                <div id="predictedVsActualPlot" class="chart"></div>
+                <small class="chart-hint">Точки на диагонали = идеальное предсказание</small>
+            </div>
+
+            <div class="chart-container" id="residualsChart">
+                <h3>График остатков</h3>
+                <div id="residualsPlot" class="chart"></div>
+                <small class="chart-hint"> Остатки должны быть случайно разбросаны вокруг 0</small>
+            </div>
+        </div>  
+    </div>
+</body>
+
+</html>

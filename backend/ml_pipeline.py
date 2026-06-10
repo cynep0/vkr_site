@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -312,6 +313,171 @@ def train_linear_regression(file_object,
 
     }
 
+    return result
+
+
+def train_random_forest(
+        file_object,
+        target_column: str,
+        feature_columns: list,
+        task_type: str = "classification",  # "classification" или "regression"
+        n_estimators: int = 100,
+        max_depth: int = None,
+        min_samples_split: int = 2,
+        max_features: str = "sqrt",
+        test_size: float = 0.2
+) -> dict:
+    """
+    Обучает модель Random Forest для классификации или регрессии.
+    """
+
+    file_object.seek(0)
+    df = pd.read_csv(file_object)
+    df = df.dropna()
+
+    if len(df) < 10:
+        raise ValueError("Слишком мало данных для обучения (минимум 10 строк)")
+
+    # === Выбор столбцов ===
+    X = df[feature_columns].copy()
+    y = df[target_column].copy()
+
+    # === Кодирование категориальных признаков ===
+    for col in X.select_dtypes(include=['object']).columns:
+        le = LabelEncoder()
+        X[col] = le.fit_transform(X[col])
+
+    # === Кодирование target для классификации ===
+    is_classification = task_type == "classification"
+    target_encoder = None
+
+    if is_classification:
+        if y.dtype == 'object':
+            target_encoder = LabelEncoder()
+            y = target_encoder.fit_transform(y)
+    else:
+        # Для регрессии target должен быть числовым
+        if y.dtype == 'object':
+            try:
+                y = pd.to_numeric(y)
+            except:
+                raise ValueError(f"Для регрессии целевая переменная '{target_column}' должна быть числовой!")
+
+    # === Разделение на train/test ===
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=42
+    )
+
+    # === Выбор и обучение модели ===
+    print(f"Random Forest: {task_type}, n_estimators={n_estimators}, max_depth={max_depth}")
+
+    if max_features == "1.0":
+        max_features = 1.0  # Строка → float (100% признаков)
+
+    if is_classification:
+        model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth if max_depth > 0 else None,
+            min_samples_split=min_samples_split,
+            max_features=max_features,
+        )
+    else:
+        model = RandomForestRegressor(
+            n_estimators=n_estimators,
+            max_depth=max_depth if max_depth > 0 else None,
+            min_samples_split=min_samples_split,
+            max_features=max_features,
+        )
+
+    model.fit(X_train, y_train)
+
+    # === Предсказание ===
+    y_pred = model.predict(X_test)
+
+    # === Метрики ===
+    if is_classification:
+        # Метрики классификации
+        accuracy = accuracy_score(y_test, y_pred)
+        avg_strategy = 'binary' if len(np.unique(y)) == 2 else 'macro'
+        precision = precision_score(y_test, y_pred, average=avg_strategy, zero_division=0)
+        recall = recall_score(y_test, y_pred, average=avg_strategy, zero_division=0)
+        f1 = f1_score(y_test, y_pred, average=avg_strategy, zero_division=0)
+
+        # ROC-AUC только для бинарной классификации
+        roc_auc = None
+        if len(np.unique(y)) == 2:
+            try:
+                y_pred_proba = model.predict_proba(X_test)[:, 1]
+                roc_auc = roc_auc_score(y_test, y_pred_proba)
+            except:
+                pass
+
+        # Матрица ошибок
+        cm = confusion_matrix(y_test, y_pred)
+
+        metrics = {
+            "accuracy": round(accuracy, 4),
+            "precision": round(precision, 4),
+            "recall": round(recall, 4),
+            "f1_score": round(f1, 4),
+            "roc_auc": round(roc_auc, 4) if roc_auc is not None else None,
+            "confusion_matrix": cm.tolist(),
+            "confusion_matrix_labels": [int(x) for x in np.unique(y)]
+        }
+    else:
+        # Метрики регрессии
+        mse = mean_squared_error(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_pred)
+
+        metrics = {
+            "mse": round(mse, 4),
+            "mae": round(mae, 4),
+            "rmse": round(rmse, 4),
+            "r2_score": round(r2, 4)
+        }
+
+    # === Важность признаков ===
+    feature_importance = {}
+    if hasattr(model, 'feature_importances_'):
+        importances = model.feature_importances_
+        for name, value in zip(feature_columns, importances):
+            feature_importance[name] = round(float(value), 4)
+
+    # === Данные для графиков ===
+    plot_data = []
+    for i in range(min(len(y_test), 100)):
+        plot_data.append({
+            "actual": float(y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]),
+            "predicted": float(y_pred[i])
+        })
+
+    residuals = [float((y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]) - y_pred[i])
+                 for i in range(min(len(y_test), 100))]
+
+    # === Статистика деревьев ===
+    tree_stats = {
+        "n_trees": n_estimators,
+        "max_depth_actual": int(model.estimators_[0].tree_.max_depth) if hasattr(model, 'estimators_') else None,
+    }
+
+    print(f"{'Accuracy' if is_classification else 'R²'}: {metrics.get('accuracy', metrics.get('r2_score')):.4f}")
+
+    # === Возврат результатов ===
+    result = {
+        **metrics,
+        "train_size": int(len(X_train)),
+        "test_size": int(len(X_test)),
+        "features": feature_columns,
+        "target_column": target_column,
+        "task_type": task_type,
+        "feature_importance": {k: float(v) for k, v in feature_importance.items()},
+        "tree_stats": tree_stats,
+        "predicted_vs_actual": plot_data,
+        "residuals": residuals,
+        "message": f"Random Forest ({task_type}) успешно обучен!",
+    }
     return result
 
 def _safe_get_n_iter(model):
