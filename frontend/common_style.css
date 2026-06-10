@@ -359,7 +359,7 @@ main {
     }
 }
 
-/* ========== ХЛЕБНЫЕ КРОШКИ ========== */
+/* ========== история навигации ========== */
 .breadcrumb {
     color: #666;
     margin-bottom: 20px;
@@ -412,4 +412,37 @@ main {
 
 .type-card small {
     opacity: 0.8;
+}
+
+
+/* ========== ШАГИ ========== */
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.step-number {
+    background: #667eea 0%;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    margin-bottom: 5px;
+    color: #333;
 }

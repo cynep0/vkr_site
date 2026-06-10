@@ -374,6 +374,9 @@ def train_random_forest(
     if max_features == "1.0":
         max_features = 1.0  # Строка → float (100% признаков)
 
+    if max_features == "0.3":
+        max_features = 0.3  # Строка → float (100% признаков)
+
     if is_classification:
         model = RandomForestClassifier(
             n_estimators=n_estimators,
