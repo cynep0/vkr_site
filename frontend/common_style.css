@@ -137,6 +137,10 @@ main {
     background: #28a745;
 }
 
+.method-badge.clustering {
+    background: #ff9800;  /* Оранжевый для кластеризации */
+}
+
 .method-card h3 {
     color: #333;
     margin-bottom: 10px;

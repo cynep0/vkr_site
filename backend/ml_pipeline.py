@@ -4,6 +4,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -11,6 +14,8 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score,
     confusion_matrix,
+    silhouette_score,
+    davies_bouldin_score
 )
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
@@ -480,6 +485,131 @@ def train_random_forest(
         "predicted_vs_actual": plot_data,
         "residuals": residuals,
         "message": f"Random Forest ({task_type}) успешно обучен!",
+    }
+    return result
+
+def train_kmeans(
+    file_object,
+    feature_columns: list,
+    n_clusters: int = 3,
+    init: str = "k-means++",
+    max_iter: int = 300,
+    n_init: int = 10,
+    random_state: int = 42
+) -> dict:
+    """
+    Обучает модель K-Means для кластеризации данных.
+    """
+    file_object.seek(0)
+    df = pd.read_csv(file_object)
+    df = df.dropna()
+
+    if len(df) < n_clusters * 5:
+        raise ValueError(f"Недостаточно данных для {n_clusters} кластеров (минимум {n_clusters * 5} строк)")
+
+    # === Используем только выбранные признаки (НЕТ целевой переменной!) ===
+    X = df[feature_columns].copy()
+
+    # === Кодирование категориальных признаков ===
+    for col in X.select_dtypes(include=['object']).columns:
+        le = LabelEncoder()
+        X[col] = le.fit_transform(X[col])
+
+    # === Масштабирование для K-Means) ===
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # === Обучение модели ===
+    print(f"✅ K-Means: n_clusters={n_clusters}, init={init}")
+
+    model = KMeans(
+        n_clusters=n_clusters,
+        init=init,
+        max_iter=max_iter,
+        n_init=n_init,
+        random_state=random_state,
+        algorithm="lloyd"
+    )
+    model.fit(X_scaled)
+
+    # === Предсказание кластеров ===
+    cluster_labels = model.predict(X_scaled)
+
+    # === Метрики кластеризации ===
+    inertia = model.inertia_  # Within-cluster sum of squares
+    silhouette = silhouette_score(X_scaled, cluster_labels) if n_clusters > 1 else 0
+    davies_bouldin = davies_bouldin_score(X_scaled, cluster_labels) if n_clusters > 1 else float('inf')
+
+    # === Центроиды кластеров ===
+    centroids = {}
+    for i, centroid in enumerate(model.cluster_centers_):
+        centroids[f"Cluster_{i}"] = {
+            feature_columns[j]: round(float(centroid[j]), 4)
+            for j in range(len(feature_columns))
+        }
+
+    # === Распределение объектов по кластерам ===
+    cluster_counts = pd.Series(cluster_labels).value_counts().sort_index().to_dict()
+    cluster_distribution = {f"Cluster_{k}": int(v) for k, v in cluster_counts.items()}
+
+    # === Данные для визуализации (PCA для 2D) ===
+    # Если признаков > 2, используем PCA для проекции на 2D
+    if len(feature_columns) > 2:
+        pca = PCA(n_components=2, random_state=random_state)
+        X_2d = pca.fit_transform(X_scaled)
+        explained_variance = round(float(pca.explained_variance_ratio_.sum() * 100), 2)
+    else:
+        X_2d = X_scaled[:, :2] if X_scaled.shape[1] >= 2 else np.hstack([X_scaled, np.zeros((len(X_scaled), 1))])
+        explained_variance = 100.0
+
+    # === Точки для графика ===
+    scatter_data = []
+    for i in range(min(len(X_2d), 500)):  # Ограничиваем для производительности
+        scatter_data.append({
+            "x": float(X_2d[i][0]),
+            "y": float(X_2d[i][1]),
+            "cluster": int(cluster_labels[i])
+        })
+
+    # === Центроиды для графика (тоже через PCA) ===
+    if len(feature_columns) > 2:
+        centroids_2d = pca.transform(model.cluster_centers_)
+    else:
+        centroids_2d = model.cluster_centers_[:, :2]
+
+    centroid_plot_data = []
+    for i, (x, y) in enumerate(centroids_2d):
+        centroid_plot_data.append({
+            "x": float(x),
+            "y": float(y),
+            "cluster": i
+        })
+
+    print(f"✅ Inertia: {inertia:.2f}, Silhouette: {silhouette:.4f}")
+    print(f"✅ Распределение: {cluster_distribution}")
+
+    # === Возврат результатов ===
+    result = {
+        # Метрики
+        "inertia": round(float(inertia), 4),
+        "silhouette_score": round(float(silhouette), 4),
+        "davies_bouldin_score": round(float(davies_bouldin), 4),
+
+        # Информация о модели
+        "n_clusters": n_clusters,
+        "n_samples": int(len(X)),
+        "features": feature_columns,
+
+        # Центроиды
+        "centroids": centroids,
+        "cluster_distribution": cluster_distribution,
+
+        # Данные для графиков
+        "scatter_data": scatter_data,
+        "centroid_data": centroid_plot_data,
+        "pca_explained_variance": explained_variance,
+
+        "message": f"K-Means успешно обучена!",
     }
     return result
 
