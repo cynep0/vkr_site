@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>k-Ближайших соседей</title>
+    <link rel="stylesheet" href="../common_style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-brand">ML Platform</div>
+        <div class="nav-links">
+            <a href="../main.html">Главная</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Заголовок -->
+        <section class="content-section">
+            <div class="breadcrumb">
+                <a href="../index.html">Главная</a> → 
+                <a href="../index.html#methods">Методы</a> → 
+                <span>K-Nearest Neighbors</span>
+            </div>
+            
+            <h1>K-Nearest Neighbors (K-NN)</h1>
+            <p class="method-tagline">
+                Алгоритм классификации и регрессии на основе поиска ближайших соседей в пространстве признаков
+            </p>
+        </section>
+
+        <!-- Что такое K-NN -->
+        <section class="content-section">
+            <h2>Что такое K-NN?</h2>
+            <div class="info-card">
+                <p>
+                    <strong>K-Nearest Neighbors (K-NN, метод k-ближайших соседей)</strong> — это алгоритм 
+                    машинного обучения, который классифицирует или предсказывает значение объекта на основе 
+                    <strong>k наиболее похожих объектов</strong> из обучающей выборки.
+                </p>
+                <div class="highlight-box">
+                    <strong>Ключевая идея:</strong> «Скажи мне, кто твои друзья, и я скажу, кто ты». 
+                    Объекты, которые находятся близко друг к другу в пространстве признаков, скорее всего 
+                    принадлежат к одному классу или имеют похожие значения.
+                </div>
+            </div>
+            
+            <!-- Особенность ленивого обучения -->
+            <div class="info-card" style="margin-top: 20px;">
+                <h3>«Ленивый» алгоритм (Lazy Learning)</h3>
+                <p>
+                    K-NN называют <strong>ленивым алгоритмом</strong>, потому что у него <strong>нет фазы 
+                    обучения</strong> в традиционном понимании. Вместо построения модели алгоритм просто 
+                    <strong>запоминает все обучающие данные</strong>. Все вычисления происходят только 
+                    при предсказании нового объекта.
+                </p>
+
+                <div class="pros-cons">
+                    <div class="highlight-box">
+                        <strong>Обычные алгоритмы:</strong><br>
+                        <small>Обучение: долгое<br>Предсказание: быстрое</small>
+                    </div>
+                    <div class="highlight-box">
+                        <strong>K-NN:</strong><br>
+                        <small>Обучение: мгновенное<br>Предсказание: медленное</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Как работает алгоритм -->
+        <section class="content-section">
+            <h2>Как работает алгоритм?</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Выбор параметра k</h4>
+                        <p>
+                            Определяем количество соседей <strong>k</strong>, которые будут участвовать 
+                            в голосовании или усреднении.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Вычисление расстояний</h4>
+                        <p>
+                            Для нового объекта вычисляем расстояние до всех объектов 
+                            обучающей выборки выбранной метрикой (евклидово, манхэттенское и др.).
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Поиск k ближайших</h4>
+                        <p>
+                            Сортируем объекты по расстоянию и выбираем <strong>k ближайших соседей</strong>.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Голосование или усреднение</h4>
+                        <p>
+                            <strong>Классификация:</strong> класс определяется большинством среди k соседей<br>
+                            <strong>Регрессия:</strong> значение определяется средним среди k соседей
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Математическая основа -->
+        <section class="content-section">
+            <h2>Математическая основа: Метрики расстояния</h2>
+            
+            <div class="formula-card">
+                <h3>1. Евклидово расстояние (Euclidean)</h3>
+                <p>
+                    Прямое расстояние между двумя точками в пространстве (как линейка):
+                </p>
+                <div class="formula">
+                    <p>d(x, y) = √(Σ(xᵢ - yᵢ)²)</p>
+                </div>
+                <div class="formula-explanation">
+                    <p>Используется по умолчанию. Хорошо работает, когда все признаки одинаково важны.</p>
+                </div>
+            </div>
+            
+            <div class="formula-card" style="margin-top: 20px;">
+                <h3>2. Манхэттенское расстояние (Manhattan)</h3>
+                <p>
+                    Расстояние по осям координат (как движение по улицам города):
+                </p>
+                <div class="formula">
+                    <p>d(x, y) = Σ|xᵢ - yᵢ|</p>
+                </div>
+                <div class="formula-explanation">
+                    <p>Лучше работает с данными, где признаки независимы или есть выбросы.</p>
+                </div>
+            </div>
+            
+            <div class="formula-card" style="margin-top: 20px;">
+                <h3>3. Расстояние Минковского (Minkowski)</h3>
+                <p>
+                    Обобщённая метрика, включающая обе предыдущие:
+                </p>
+                <div class="formula">
+                    <p>d(x, y) = (Σ|xᵢ - yᵢ|ᵖ)^(1/p)</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>p = 1</strong> → Манхэттенское расстояние</li>
+                        <li><strong>p = 2</strong> → Евклидово расстояние</li>
+                        <li><strong>p → ∞</strong> → Расстояние Чебышёва (максимальная разница по одной координате)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Выбор параметра k -->
+        <section class="content-section">
+            <h2>Выбор оптимального параметра k</h2>
+            <div class="info-card">
+                <p>
+                    Параметр <strong>k</strong> — самый важный гиперпараметр в K-NN. Он контролирует 
+                    баланс между переобучением и недообучением.
+                </p>
+                
+                <div class="pros-cons">
+                    <div class="cons">
+                        <h3>Слишком малое k (k=1)</h3>
+                        <ul>
+                            <li>Модель очень чувствительна к шуму</li>
+                            <li>Высокая дисперсия (переобучение)</li>
+                            <li>Границы решений очень сложные</li>
+                            <li>Выбросы сильно влияют на результат</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h3>Слишком большое k</h3>
+                        <ul>
+                            <li>Модель слишком сглажена</li>
+                            <li>Высокое смещение (недообучение)</li>
+                            <li>Границы решений слишком простые</li>
+                            <li>Могут доминировать большие классы</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3> Метод подбора k:</h3>
+                <ol>
+                    <li style="margin-bottom: 10px;">
+                        Обучите K-NN для разных значений k (например, от 1 до 30)
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        Для каждого k вычислите точность на валидационной выборке
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        Постройте график: k по оси X, точность по оси Y
+                    </li>
+                    <li>
+                        Выберите k с <strong>максимальной точностью</strong> (или «локоть» на графике)
+                    </li>
+                </ol>
+                
+                <div class="highlight-box" style="margin-top: 15px;">
+                    <strong>Рекомендация:</strong> Начните с k = √n (где n — количество объектов в 
+                    обучающей выборке). Обычно оптимальное k находится в диапазоне 3-10.
+                </div>
+            </div>
+        </section>
+
+        <!-- Веса соседей -->
+        <section class="content-section">
+            <h2>Веса соседей (Weights)</h2>
+            <div class="info-card">
+                <p>
+                    K-NN позволяет назначать <strong>разные веса</strong> соседям при голосовании 
+                    или усреднении.
+                </p>
+                
+                <div>
+                    <div class="highlight-box">
+                        <h4 style="margin-bottom: 10px;">uniform (равные веса)</h4>
+                        <p>
+                            Все k соседей имеют <strong>одинаковый вес</strong>. Голос каждого соседа 
+                            учитывается одинаково, независимо от расстояния.
+                        </p>
+                        <p><strong>Плюсы:</strong> Проще, быстрее</p>
+                        <p><strong>Минусы:</strong> Дальние соседи влияют так же, как близкие</p>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h4 style="margin-bottom: 10px;">distance (веса по расстоянию)</h4>
+                        <p>
+                            Вес соседа <strong>обратно пропорционален расстоянию</strong>. Ближние соседи 
+                            имеют больший вес: w = 1/d
+                        </p>
+                        <p><strong>Плюсы:</strong> Более точные предсказания</p>
+                        <p><strong>Минусы:</strong> Медленнее, чувствительно к шуму</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Гиперпараметры -->
+        <section class="content-section">
+            <h2>⚙️ Гиперпараметры</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>Описание</th>
+                            <th>Диапазон</th>
+                            <th>Влияние</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>n_neighbors</code></td>
+                            <td>Количество соседей k</td>
+                            <td>1 — 50</td>
+                            <td>Самый важный параметр. Малое k = сложная модель, большое k = простая</td>
+                        </tr>
+                        <tr>
+                            <td><code>weights</code></td>
+                            <td>Функция веса соседей</td>
+                            <td>uniform, distance</td>
+                            <td>distance даёт больше веса близким соседям, обычно точнее</td>
+                        </tr>
+                        <tr>
+                            <td><code>metric</code></td>
+                            <td>Метрика расстояния</td>
+                            <td>euclidean, manhattan, minkowski</td>
+                            <td>euclidean — по умолчанию, manhattan — для данных с выбросами</td>
+                        </tr>
+                        <tr>
+                            <td><code>p</code></td>
+                            <td>Степень для метрики Минковского</td>
+                            <td>1 — 5</td>
+                            <td>p=1 → Manhattan, p=2 → Euclidean</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Плюсы и минусы -->
+        <section class="content-section">
+            <h2>Плюсы и Минусы</h2>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>✅ Преимущества</h3>
+                    <ul>
+                        <li>Простота реализации и понимания</li>
+                        <li>Не требует обучения (мгновенная «тренировка»)</li>
+                        <li>Естественно работает для многоклассовой классификации</li>
+                        <li>Подходит и для классификации, и для регрессии</li>
+                        <li>Не делает предположений о распределении данных</li>
+                        <li>Легко адаптируется к новым данным (просто добавить в выборку)</li>
+                        <li>Хорошо работает на небольших датасетах</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>❌ Недостатки</h3>
+                    <ul>
+                        <li>Медленное предсказание на больших данных (O(n))</li>
+                        <li>Требует хранения всех обучающих данных в памяти</li>
+                        <li>Чувствителен к масштабу признаков (требует масштабирования)</li>
+                        <li>Чувствителен к выбросам и шуму</li>
+                        <li>Плохо работает с высокоразмерными данными (проклятие размерности)</li>
+                        <li>Нужно подбирать оптимальное k</li>
+                        <li>Не работает с категориальными признаками без кодирования</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Призыв к действию -->
+        <section class="content-section cta-section">
+            <h2>Готовы попробовать?</h2>
+            <p>Обучите модель K-NN на своих данных и найдите ближайших соседей!</p>
+            <div class="cta-buttons">
+                <a href="../models/KNearest_model.html" class="btn btn-primary btn-large">
+                    Перейти к обучению модели
+                </a>
+                <a href="../main.html#methods" class="btn btn-outline btn-large">
+                    ← Вернуться к списку методов
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
