@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import json
-from ml_pipeline import train_logistic_regression, train_linear_regression,train_random_forest, train_kmeans
+from ml_pipeline import train_logistic_regression, train_linear_regression,train_random_forest, train_knn
 
 app = FastAPI(title="ML Platform API")
 
@@ -146,14 +146,17 @@ async def train_random_forest_endpoint(
         raise HTTPException(status_code=500, detail=f"Ошибка обработки: {str(e)}")
 
 
-@app.post("/kmeans/")
-async def train_kmeans_endpoint(
+@app.post("/k_nearest/")
+async def train_knn_endpoint(
         file: UploadFile = File(...),
+        target_column: str = Form(...),
         feature_columns: str = Form(...),
-        n_clusters: int = Form(3, ge=2, le=20),
-        init: str = Form("k-means++"),
-        max_iter: int = Form(300, ge=100, le=1000),
-        n_init: int = Form(10, ge=1, le=50)
+        task_type: str = Form("classification"),
+        n_neighbors: int = Form(5, ge=1, le=50),
+        weights: str = Form("uniform"),
+        metric: str = Form("minkowski"),
+        p: float = Form(2, ge=1, le=5),
+        test_size: float = Form(0.2, ge=0.1, le=0.5)
 ):
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Только CSV файлы!")
@@ -165,14 +168,20 @@ async def train_kmeans_endpoint(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Неверный формат feature_columns")
 
+    if target_column in features:
+        raise HTTPException(status_code=400, detail="Целевая переменная не должна быть в признаках!")
+
     try:
-        result = train_kmeans(
+        result = train_knn(
             file.file,
+            target_column=target_column,
             feature_columns=features,
-            n_clusters=n_clusters,
-            init=init,
-            max_iter=max_iter,
-            n_init=n_init
+            task_type=task_type,
+            n_neighbors=n_neighbors,
+            weights=weights,
+            metric=metric,
+            p=p,
+            test_size=test_size
         )
         return JSONResponse(content=result)
 

@@ -260,7 +260,7 @@ input[type="range"] + span {
 }
 
 
-#alphaError, #cError, #maxIterError, #nEstimatorsError, #maxDepthError, #minSamplesSplitError, #nClustersError, #maxIterError, #nInitError{
+.value-error{
     color: #cc0000;
     display: none;
 }

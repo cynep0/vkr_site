@@ -2,10 +2,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import (
     accuracy_score,
@@ -14,8 +12,9 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score,
     confusion_matrix,
-    silhouette_score,
-    davies_bouldin_score
+    mean_squared_error,
+    mean_absolute_error,
+    r2_score
 )
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
@@ -488,129 +487,162 @@ def train_random_forest(
     }
     return result
 
-def train_kmeans(
-    file_object,
-    feature_columns: list,
-    n_clusters: int = 3,
-    init: str = "k-means++",
-    max_iter: int = 300,
-    n_init: int = 10,
-    random_state: int = 42
+
+# === В импорты добавьте ===
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, \
+    mean_squared_error, mean_absolute_error, r2_score
+
+
+def train_knn(
+        file_object,
+        target_column: str,
+        feature_columns: list,
+        task_type: str = "classification",  # "classification" или "regression"
+        n_neighbors: int = 5,
+        weights: str = "uniform",  # "uniform" или "distance"
+        metric: str = "minkowski",  # "euclidean", "manhattan", "minkowski"
+        p: float = 2,
+        test_size: float = 0.2
 ) -> dict:
     """
-    Обучает модель K-Means для кластеризации данных.
+    Обучает модель K-Nearest Neighbors для классификации или регрессии.
     """
+
     file_object.seek(0)
     df = pd.read_csv(file_object)
     df = df.dropna()
 
-    if len(df) < n_clusters * 5:
-        raise ValueError(f"Недостаточно данных для {n_clusters} кластеров (минимум {n_clusters * 5} строк)")
+    if len(df) < n_neighbors + 5:
+        raise ValueError(f"Недостаточно данных для k={n_neighbors} (минимум {n_neighbors + 5} строк)")
 
-    # === Используем только выбранные признаки (НЕТ целевой переменной!) ===
+    # === Выбор столбцов ===
     X = df[feature_columns].copy()
+    y = df[target_column].copy()
 
     # === Кодирование категориальных признаков ===
     for col in X.select_dtypes(include=['object']).columns:
         le = LabelEncoder()
         X[col] = le.fit_transform(X[col])
 
-    # === Масштабирование для K-Means) ===
+    # === Кодирование target для классификации ===
+    is_classification = task_type == "classification"
+    target_encoder = None
+
+    if is_classification:
+        if pd.api.types.is_string_dtype(y) or y.dtype == 'object':
+            target_encoder = LabelEncoder()
+            y = target_encoder.fit_transform(y)
+    else:
+        # Для регрессии target должен быть числовым
+        if y.dtype == 'object':
+            try:
+                y = pd.to_numeric(y)
+            except:
+                raise ValueError(f"Для регрессии целевая переменная '{target_column}' должна быть числовой!")
+
+    # === Масштабирование ===
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # === Обучение модели ===
-    print(f"✅ K-Means: n_clusters={n_clusters}, init={init}")
-
-    model = KMeans(
-        n_clusters=n_clusters,
-        init=init,
-        max_iter=max_iter,
-        n_init=n_init,
-        random_state=random_state,
-        algorithm="lloyd"
+    # === Разделение на train/test ===
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled, y, test_size=test_size, random_state=42
     )
-    model.fit(X_scaled)
 
-    # === Предсказание кластеров ===
-    cluster_labels = model.predict(X_scaled)
+    # === Выбор и обучение модели ===
+    print(f"✅ K-NN: {task_type}, k={n_neighbors}, weights={weights}, metric={metric}")
 
-    # === Метрики кластеризации ===
-    inertia = model.inertia_  # Within-cluster sum of squares
-    silhouette = silhouette_score(X_scaled, cluster_labels) if n_clusters > 1 else 0
-    davies_bouldin = davies_bouldin_score(X_scaled, cluster_labels) if n_clusters > 1 else float('inf')
+    if is_classification:
+        model = KNeighborsClassifier(
+            n_neighbors=n_neighbors,
+            weights=weights,
+            metric=metric,
+            p=p,
+            n_jobs=-1
+        )
+    else:
+        model = KNeighborsRegressor(
+            n_neighbors=n_neighbors,
+            weights=weights,
+            metric=metric,
+            p=p,
+            n_jobs=-1
+        )
+    print("Поиск ошибки")
+    # K-NN "обучается" просто запоминая данные
+    model.fit(X_train, y_train)
 
-    # === Центроиды кластеров ===
-    centroids = {}
-    for i, centroid in enumerate(model.cluster_centers_):
-        centroids[f"Cluster_{i}"] = {
-            feature_columns[j]: round(float(centroid[j]), 4)
-            for j in range(len(feature_columns))
+    # === Предсказание ===
+    y_pred = model.predict(X_test)
+
+    # === Метрики ===
+    if is_classification:
+        accuracy = accuracy_score(y_test, y_pred)
+        avg_strategy = 'binary' if len(np.unique(y)) == 2 else 'macro'
+        precision = precision_score(y_test, y_pred, average=avg_strategy, zero_division=0)
+        recall = recall_score(y_test, y_pred, average=avg_strategy, zero_division=0)
+        f1 = f1_score(y_test, y_pred, average=avg_strategy, zero_division=0)
+
+        roc_auc = None
+        if len(np.unique(y)) == 2:
+            try:
+                y_pred_proba = model.predict_proba(X_test)[:, 1]
+                roc_auc = roc_auc_score(y_test, y_pred_proba)
+            except:
+                pass
+
+        cm = confusion_matrix(y_test, y_pred)
+
+        metrics = {
+            "accuracy": round(accuracy, 4),
+            "precision": round(precision, 4),
+            "recall": round(recall, 4),
+            "f1_score": round(f1, 4),
+            "roc_auc": round(roc_auc, 4) if roc_auc is not None else None,
+            "confusion_matrix": cm.tolist(),
+            "confusion_matrix_labels": [int(x) for x in np.unique(y)]
         }
 
-    # === Распределение объектов по кластерам ===
-    cluster_counts = pd.Series(cluster_labels).value_counts().sort_index().to_dict()
-    cluster_distribution = {f"Cluster_{k}": int(v) for k, v in cluster_counts.items()}
-
-    # === Данные для визуализации (PCA для 2D) ===
-    # Если признаков > 2, используем PCA для проекции на 2D
-    if len(feature_columns) > 2:
-        pca = PCA(n_components=2, random_state=random_state)
-        X_2d = pca.fit_transform(X_scaled)
-        explained_variance = round(float(pca.explained_variance_ratio_.sum() * 100), 2)
     else:
-        X_2d = X_scaled[:, :2] if X_scaled.shape[1] >= 2 else np.hstack([X_scaled, np.zeros((len(X_scaled), 1))])
-        explained_variance = 100.0
+        mse = mean_squared_error(y_test, y_pred)
+        mae = mean_absolute_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_pred)
 
-    # === Точки для графика ===
-    scatter_data = []
-    for i in range(min(len(X_2d), 500)):  # Ограничиваем для производительности
-        scatter_data.append({
-            "x": float(X_2d[i][0]),
-            "y": float(X_2d[i][1]),
-            "cluster": int(cluster_labels[i])
+        metrics = {
+            "mse": round(mse, 4),
+            "mae": round(mae, 4),
+            "rmse": round(rmse, 4),
+            "r2_score": round(r2, 4)
+        }
+
+    print("before")
+    # === Данные для визуализации ===
+    plot_data = []
+    for i in range(min(len(y_test), 100)):
+        plot_data.append({
+            "actual": float(y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]),
+            "predicted": float(y_pred[i])
         })
 
-    # === Центроиды для графика (тоже через PCA) ===
-    if len(feature_columns) > 2:
-        centroids_2d = pca.transform(model.cluster_centers_)
-    else:
-        centroids_2d = model.cluster_centers_[:, :2]
+    residuals = [float((y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]) - y_pred[i])
+                for i in range(min(len(y_test), 100))]
 
-    centroid_plot_data = []
-    for i, (x, y) in enumerate(centroids_2d):
-        centroid_plot_data.append({
-            "x": float(x),
-            "y": float(y),
-            "cluster": i
-        })
-
-    print(f"✅ Inertia: {inertia:.2f}, Silhouette: {silhouette:.4f}")
-    print(f"✅ Распределение: {cluster_distribution}")
-
+    print(f"✅ {'Accuracy' if is_classification else 'R²'}: {metrics.get('accuracy', metrics.get('r2_score')):.4f}")
     # === Возврат результатов ===
     result = {
-        # Метрики
-        "inertia": round(float(inertia), 4),
-        "silhouette_score": round(float(silhouette), 4),
-        "davies_bouldin_score": round(float(davies_bouldin), 4),
-
-        # Информация о модели
-        "n_clusters": n_clusters,
-        "n_samples": int(len(X)),
+        **metrics,
+        "train_size": int(len(X_train)),
+        "test_size": int(len(X_test)),
         "features": feature_columns,
-
-        # Центроиды
-        "centroids": centroids,
-        "cluster_distribution": cluster_distribution,
-
-        # Данные для графиков
-        "scatter_data": scatter_data,
-        "centroid_data": centroid_plot_data,
-        "pca_explained_variance": explained_variance,
-
-        "message": f"K-Means успешно обучена!",
+        "target_column": target_column,
+        "task_type": task_type,
+        "predicted_vs_actual": plot_data,
+        "residuals": residuals,
+        "message": f"K-NN ({task_type}) успешно обучен!",
     }
+
     return result
 
 def _safe_get_n_iter(model):

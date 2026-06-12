@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Случайный лес</title>
+    <title>k-Ближайших соседей</title>
     <link rel="stylesheet" type="text/css" href="model_style.css">
-    <script src="RandomForest_model.js" defer></script>
+    <script src="KNearest_model.js" defer></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 
 <body>
     <div class="container">
         <h1>ML Platform</h1>
-        <h2>Случайный лес</h2>
+        <h2>k-Ближайших соседей</h2>
         <div>
-            <a href="../learning/RandomForest_learning.html" class="btn btn-outline">← Вернуться к теории</a>
+            <a href="../learning/KNearest_learning.html" class="btn btn-outline">← Вернуться к теории</a>
         </div>
         <!--Настройка модели-->
         <div class="model-settings" id="modelSettings">
@@ -41,36 +41,35 @@
                 </div>
             </section>
 
-            <!-- Количество деревьев -->
             <section>
-                <label class="important-label">Количество деревьев (n_estimators ):</label>
-                <input type="number" id="paramNEstimators" min="10" max="500" step="1" value="100">
-                <small id="nEstimatorsError" class="value-error"> n_estimators должен быть от 10 до 500 </small>
+                <label class="important-label">количество соседей (n_neighbors):</label>
+                <input type="number" id="paramNNeighbors" min="1" max="50" step="1" value="5" class="param-number">
+                <small id="paramNNeighborsError" class="value-error"> min_samples_split должен быть от 1 до 50 </small>
             </section>
 
-             <!-- Максимальная глубина -->
             <section>
-                <label class="important-label">Максимальная глубина дерева (max_depth):</label>
-                <input type="number" id="paramMaxDepth" min="0" max="50" step="1" value="10">
-                <small>0 = без ограничений (None). Меньше глубина = проще модель </small>
-                <small id="maxDepthError" class="value-error">max_depth должен быть от 0 до 50</small>
-            </section>
-
-            <!-- Минимальное число объектов для разбиения -->
-            <section>
-                <label class="important-label">Мин. объектов для разделения (min_samples_split):</label>
-                <input type="number" id="paramMinSamplesSplit" min="2" max="20" step="1" value="2">
-                <small id="minSamplesSplitError" class="value-error"> min_samples_split должен быть от 2 до 20 </small>
-            </section>
-
-            <!-- Максимальное число признаков -->
-            <section>
-                <label class="important-label">Макс. признаков для разбиения (max_features):</label>
-                <select id="paramMaxFeatures">
-                    <option value="sqrt">sqrt (√n) — рекомендуется для классификации</option>
-                    <option value="log2">log2 (log₂n)</option>
-                    <option value="1.0">все признаки - рекомендуется для регрессии</option>
+                <label class="important-label">Взвешивание соседей (weights):</label>
+                <select id="paramWeights" class="param-select">
+                    <option value="uniform" selected>равные веса (uniform)</option>
+                    <option value="distance">обратно пропорционально расстоянию (distance)</option>
                 </select>
+            </section>
+
+            <section>
+                <label class="important-label">функция расстояния (metric):</label>
+                <select id="paramMetric" class="param-select" onchange="updatePParam()">
+                    <option value="minkowski" selected>Метрика Минковского (minkowski)</option>
+                    <option value="euclidean">Евклидова метрика (euclidean)</option>
+                    <option value="manhattan">Манхэттенская метрика (manhattan)</option>
+                </select>
+            </section>
+
+            <section id="pParamGroup">
+                <label class="important-label">Cтепень метрики Минковского (p): </label>
+                <input type="range" id="paramP" min="1" max="5" step="0.1" value="2" class="param-range" 
+                oninput="document.getElementById('paramPValue').textContent = this.value">
+                <span>Значение: <strong id="paramPValue">2.0</strong></span>
+                <small>1.0 → Манхэттенская | 2.0 → Евклидова </small>
             </section>
             
             <!-- Размер тестовой выборки (educational parameter) -->
@@ -149,23 +148,6 @@
             <div class="result-item">
                 <span class="result-label">Признаки:</span>
                 <span class="result-value" id="features">-</span>
-            </div>
-
-            <div class="result-item">
-                <span class="result-label">Количество деревьев:</span>
-                <span class="result-value" id="nTrees">-</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Максимальная глубина:</span>
-                <span class="result-value" id="maxDepth">-</span>
-            </div>
-
-            <!-- Важность признаков (график) -->
-            <div class="chart-container" id="featureImportanceChart">
-                <h3>Важность признаков</h3>
-                <span>Коэффициенты модели: влияние признаков на прогноз</span>
-                <div id="featureImportancePlot" class="chart"></div>
-                <small class="chart-hint">Чем больше столбец, тем больше признак влияет на прогноз</small>
             </div>
         </div>
 
