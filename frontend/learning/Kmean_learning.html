@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Means Кластеризация</title>
+    <link rel="stylesheet" href="../common_style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-brand">ML Platform</div>
+        <div class="nav-links">
+            <a href="../main.html">Главная</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Заголовок -->
+        <section class="content-section">
+            <div class="breadcrumb">
+                <a href="../main.html">Главная</a> → 
+                <a href="../main.html#methods">Методы</a> → 
+                <span>K-Means Кластеризация</span>
+            </div>
+            
+            <h1>K-Means Кластеризация</h1>
+            <p class="method-tagline">
+                Алгоритм обучения без учителя для поиска скрытых структур и группировки объектов
+            </p>
+        </section>
+
+        <!-- Что такое кластеризация -->
+        <section class="content-section">
+            <h2>Что такое кластеризация?</h2>
+            <div class="info-card">
+                <p>
+                    <strong>Кластеризация</strong> — это задача машинного обучения без учителя (unsupervised learning), 
+                    цель которой — разделить объекты на группы (кластеры) так, чтобы объекты внутри одного 
+                    кластера были <strong>похожи друг на друга</strong>, а объекты из разных кластеров — 
+                    <strong>отличались</strong>.
+                </p>
+                <div class="highlight-box">
+                    <strong>Ключевое отличие:</strong> В отличие от классификации, при кластеризации 
+                    <strong>нет правильных ответов</strong> (целевой переменной). Модель сама находит 
+                    структуру в данных.
+                </div>
+            </div>
+        </section>
+
+        <!-- Что такое K-Means -->
+        <section class="content-section">
+            <h2>Что такое K-Means?</h2>
+            <div class="info-card">
+                <p>
+                    <strong>K-Means (K-средних)</strong> — это самый популярный алгоритм кластеризации, 
+                    который разделяет данные на K кластеров, минимизируя расстояние от объектов до 
+                    центров их кластеров (центроидов).
+                </p>
+                <p style="margin-top: 10px;">
+                    Алгоритм был предложен в 1967 году Джеймсом Маккуином и до сих пор широко 
+                    используется благодаря своей <strong>простоте</strong> и <strong>эффективности</strong>.
+                </p>
+            </div>
+        </section>
+
+        <!-- Как работает алгоритм -->
+        <section class="content-section">
+            <h2>Как работает алгоритм?</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">0</div>
+                    <div class="step-content">
+                        <h4>Инициализация</h4>
+                        <p>
+                            Выбираем количество кластеров <strong>K</strong>. Случайным образом или 
+                            методом k-means++ выбираем K начальных центроидов.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Назначение кластеров</h4>
+                        <p>
+                            Каждый объект назначается <strong>ближайшему центроиду</strong> по евклидову 
+                            расстоянию. Все объекты, назначенные одному центроиду, образуют кластер.
+                        </p>
+                        <div class="formula" style="margin: 10px 0;">
+                            <p>clusterᵢ = argminⱼ ||xᵢ - μⱼ||²</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Обновление центроидов</h4>
+                        <p>
+                            Для каждого кластера вычисляется <strong>новый центроид</strong> как среднее 
+                            арифметическое всех объектов, назначенных этому кластеру.
+                        </p>
+                        <div class="formula" style="margin: 10px 0;">
+                            <p>μⱼ = (1/|Cⱼ|) × Σ xᵢ, где xᵢ ∈ C</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Повторение</h4>
+                        <p>
+                            Шаги 1 и 2 повторяются до тех пор, пока:
+                        </p>
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Центроиды перестанут меняться (сходимость)</li>
+                            <li>Достигнуто максимальное число итераций</li>
+                            <li>Изменения центроидов меньше порога</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Математическая основа -->
+        <section class="content-section">
+            <h2>Математическая основа</h2>
+            
+            <div class="formula-card">
+                <h3>Функция потерь (Inertia / WSS)</h3>
+                <p style="margin-bottom: 15px;">
+                    K-Means минимизирует сумму квадратов расстояний от объектов до центроидов их кластеров:
+                </p>
+                <div class="formula">
+                    <p>J = Σⱼ₌₁ᴷ Σ∈Cⱼ ||xᵢ - μⱼ||²</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>J</strong> — целевая функция (Inertia, Within-Cluster Sum of Squares)</li>
+                        <li><strong>K</strong> — количество кластеров</li>
+                        <li><strong>Cⱼ</strong> — множество объектов в кластере j</li>
+                        <li><strong>xᵢ</strong> — i-й объект</li>
+                        <li><strong>μⱼ</strong> — центроид кластера j</li>
+                        <li><strong>||xᵢ - μ||²</strong> — квадрат евклидова расстояния</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info-card" style="margin-top: 20px;">
+                <h3>Почему квадрат расстояния?</h3>
+                <p>
+                    Использование квадрата расстояния делает функцию <strong>дифференцируемой</strong> 
+                    и упрощает вычисление центроидов (среднее арифметическое минимизирует сумму квадратов 
+                    отклонений). Это также означает, что алгоритм чувствителен к <strong>выбросам</strong> 
+                    — далёкие объекты сильно влияют на положение центроида.
+                </p>
+            </div>
+        </section>
+
+        <!-- Метод локтя -->
+        <section class="content-section">
+            <h2>Метод локтя (Elbow Method)</h2>
+            <div class="info-card">
+                <p>
+                    Один из главных вопросов K-Means: <strong>как выбрать количество кластеров K?</strong> 
+                    Метод локтя помогает найти оптимальное значение.
+                </p>
+                
+                <h3 style="margin-top: 20px;">Как работает:</h3>
+                <ol style="margin-top: 10px; margin-left: 20px;">
+                    <li style="margin-bottom: 10px;">
+                        Обучите K-Means для разных значений K (например, от 2 до 10)
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        Для каждого K вычислите <strong>Inertia</strong> (сумму квадратов расстояний)
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        Постройте график: K по оси X, Inertia по оси Y
+                    </li>
+                    <li>
+                        Найдите <strong>«локоть»</strong> — точку, где уменьшение Inertia замедляется
+                    </li>
+                </ol>
+                
+                <div class="highlight-box" style="margin-top: 15px;">
+                    <strong>Интерпретация:</strong> До «локтя» каждый новый кластер значительно улучшает 
+                    качество. После «локтя» добавление кластеров даёт всё меньше пользы → это и есть 
+                    оптимальное K.
+                </div>
+            </div>
+        </section>
+
+        <!-- Метрики качества -->
+        <section class="content-section">
+            <h2>Метрики качества кластеризации</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Метрика</th>
+                            <th>Описание</th>
+                            <th>Диапазон</th>
+                            <th>Что лучше</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Inertia (WSS)</strong></td>
+                            <td>Сумма квадратов расстояний от объектов до центроидов</td>
+                            <td>0 — ∞</td>
+                            <td>Меньше (но растёт с уменьшением K)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Silhouette Score</strong></td>
+                            <td>Средняя мера того, насколько объект похож на свой кластер vs другие кластеры</td>
+                            <td>-1 — 1</td>
+                            <td>Больше (1 = идеально)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Davies-Bouldin Index</strong></td>
+                            <td>Среднее сходство между кластерами (отношение внутрикластерной дисперсии к межкластерному расстоянию)</td>
+                            <td>0 — ∞</td>
+                            <td>Меньше (0 = идеально)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Calinski-Harabasz</strong></td>
+                            <td>Отношение межкластерной дисперсии к внутрикластерной</td>
+                            <td>0 — ∞</td>
+                            <td>Больше</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="info-card" style="margin-top: 20px;">
+                <h3>Формула Silhouette Score</h3>
+                <div class="formula" style="margin: 15px 0;">
+                    <p>s = (b - a) / max(a, b)</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>a</strong> — среднее расстояние до других объектов в том же кластере</li>
+                        <li><strong>b</strong> — среднее расстояние до объектов в ближайшем другом кластере</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                    Silhouette ≈ 1: объект хорошо отнесён к своему кластеру<br>
+                    Silhouette ≈ 0: объект на границе кластеров<br>
+                    Silhouette ≈ -1: объект, возможно, отнесён к неправильному кластеру
+                </p>
+            </div>
+        </section>
+
+        <!-- Гиперпараметры -->
+        <section class="content-section">
+            <h2>⚙️ Гиперпараметры</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Параметр</th>
+                            <th>Описание</th>
+                            <th>Диапазон</th>
+                            <th>Влияние</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>n_clusters</code></td>
+                            <td>Количество кластеров K</td>
+                            <td>2 — 20</td>
+                            <td>Самый важный параметр. Определяет, на сколько групп разделить данные</td>
+                        </tr>
+                        <tr>
+                            <td><code>init</code></td>
+                            <td>Метод инициализации центроидов</td>
+                            <td>k-means++, random</td>
+                            <td>k-means++ выбирает начальные центроиды умнее → быстрее сходимость, лучше результат</td>
+                        </tr>
+                        <tr>
+                            <td><code>max_iter</code></td>
+                            <td>Максимум итераций для одного запуска</td>
+                            <td>100 — 1000</td>
+                            <td>Больше итераций = лучше сходимость, но медленнее</td>
+                        </tr>
+                        <tr>
+                            <td><code>n_init</code></td>
+                            <td>Количество запусков алгоритма</td>
+                            <td>1 — 50</td>
+                            <td>Алгоритм запускается n_init раз с разными центроидами, выбирается лучший результат</td>
+                        </tr>
+                        <tr>
+                            <td><code>random_state</code></td>
+                            <td>Случайное зерно</td>
+                            <td>Любое целое</td>
+                            <td>Фиксирует случайность для воспроизводимости результатов</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Плюсы и минусы -->
+        <section class="content-section">
+            <h2>Плюсы и Минусы</h2>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>✅ Преимущества</h3>
+                    <ul>
+                        <li>Простота реализации и понимания</li>
+                        <li>Быстрая работа на больших датасетах O(n)</li>
+                        <li>Масштабируемость на большие данные</li>
+                        <li>Всегда сходится (к локальному минимуму)</li>
+                        <li>Легко интерпретировать результаты</li>
+                        <li>Не требует размеченных данных</li>
+                        <li>Хорошо работает на сферических кластерах</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>❌ Недостатки</h3>
+                    <ul>
+                        <li>Нужно заранее указать количество кластеров K</li>
+                        <li>Чувствителен к выбросам (outliers)</li>
+                        <li>Предполагает сферическую форму кластеров</li>
+                        <li>Чувствителен к масштабу признаков</li>
+                        <li>Может сойтись к локальному, а не глобальному минимуму</li>
+                        <li>Не работает с категориальными данными (без кодирования)</li>
+                        <li>Плохо работает с кластерами разной плотности</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Призыв к действию -->
+        <section class="content-section cta-section">
+            <h2>Готовы попробовать?</h2>
+            <p>Обучите модель K-Means на своих данных и найдите скрытые структуры!</p>
+            <div class="cta-buttons">
+                <a href="../models/KMean_model.html" class="btn btn-primary btn-large">
+                    Перейти к обучению модели
+                </a>
+                <a href="../main.html#methods" class="btn btn-outline btn-large">
+                    ← Вернуться к списку методов
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
