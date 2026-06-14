@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метрики регрессии | ML Platform</title>
+    <link rel="stylesheet" href="../common_style.css">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav>
+        <div class="nav-brand">ML Platform</div>
+        <div class="nav-links">
+            <a href="../main.html" class="active">Главная</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Заголовок -->
+        <section class="content-section">
+            <div class="breadcrumb">
+                <a href="../main.html">Главная</a> → 
+                <a href="../main.html#methods">Методы</a> → 
+                <span>Метрики регрессии</span>
+            </div>
+            
+            <h1>Метрики качества для регрессии</h1>
+            <p class="method-tagline">
+                Как оценить, насколько хорошо модель предсказывает числовые значения?
+            </p>
+        </section>
+
+        <!-- Зачем нужны метрики -->
+        <section class="content-section">
+            <h2>Зачем нужны метрики?</h2>
+            <div class="info-card">
+                <p>
+                    После обучения модели регрессии возникает вопрос: насколько хороши её предсказания? 
+                    Метрики качества дают численную оценку точности модели, позволяя:
+                </p>
+                <ul>
+                    <li>Сравнивать разные модели между собой</li>
+                    <li>Подбирать оптимальные гиперпараметры</li>
+                    <li>Контролировать переобучение</li>
+                    <li>Объяснять результаты заказчику или комиссии</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Важно:</strong> Не существует «универсальной лучшей» метрики. 
+                    Выбор зависит от задачи, данных и бизнес-требований.
+                </div>
+            </div>
+        </section>
+
+        <!-- Основные метрики -->
+        <section class="content-section">
+            <h2>Основные метрики регрессии</h2>
+            
+            <!-- MSE -->
+            <div class="formula-card">
+                <h3>1. MSE (Mean Squared Error) — Среднеквадратичная ошибка</h3>
+                <div class="formula">
+                    <p>MSE = (1/n) × Σ(yᵢ - ŷᵢ)²</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>yᵢ</strong> — реальное значение</li>
+                        <li><strong>ŷᵢ</strong> — предсказанное значение</li>
+                        <li><strong>n</strong> — количество объектов</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <strong>Интерпретация:</strong> Средний квадрат ошибки. Чем меньше, тем лучше. 
+                    <strong>Недостаток:</strong> Измеряется в квадратах единиц целевой переменной 
+                    (трудно интерпретировать).
+                </div>
+            </div>
+            
+            <!-- RMSE -->
+            <div class="formula-card" style="margin-top: 20px;">
+                <h3>2. RMSE (Root Mean Squared Error) — Корень из MSE</h3>
+                <div class="formula">
+                    <p>RMSE = √MSE = √[(1/n) × Σ(yᵢ - ŷᵢ)²]</p>
+                </div>
+                <div class="formula-explanation">
+                    <p>То же самое, что MSE, но извлечён квадратный корень.</p>
+                </div>
+                <div class="highlight-box">
+                    <strong>Преимущества:</strong>
+                    <ul>
+                        <li>Измеряется в тех же единицах, что и целевая переменная (интуитивно понятно)</li>
+                        <li>Чувствительна к большим ошибкам (выбросам) — это может быть как плюсом, так и минусом</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- MAE -->
+            <div class="formula-card" style="margin-top: 20px;">
+                <h3>3. MAE (Mean Absolute Error) — Средняя абсолютная ошибка</h3>
+                <div class="formula">
+                    <p>MAE = (1/n) × Σ|yᵢ - ŷᵢ|</p>
+                </div>
+                <div class="formula-explanation">
+                    <p>Среднее значение модуля разности между реальными и предсказанными значениями.</p>
+                </div>
+                <div class="highlight-box">
+                    <strong>Преимущества:</strong>
+                    <ul>
+                        <li>Простая интерпретация: «в среднем модель ошибается на X единиц»</li>
+                        <li>Менее чувствительна к выбросам, чем MSE/RMSE</li>
+                    </ul>
+                    <strong>Недостаток:</strong> Не дифференцируема в нуле (проблема для некоторых оптимизаторов)
+                </div>
+            </div>
+            
+            <!-- R² -->
+            <div class="formula-card" style="margin-top: 20px;">
+                <h3>4. R² (Coefficient of Determination) — Коэффициент детерминации</h3>
+                <div class="formula">
+                    <p>R² = 1 - (SS<sub>res</sub> / SS<sub>tot</sub>)</p>
+                </div>
+                <div class="formula-explanation">
+                    <ul>
+                        <li><strong>SS<sub>res</sub></strong> = Σ(yᵢ - ŷᵢ)² — сумма квадратов остатков</li>
+                        <li><strong>SS<sub>tot</sub></strong> = Σ(yᵢ - ȳ)² — общая сумма квадратов</li>
+                        <li><strong>ȳ</strong> — среднее значение целевой переменной</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <strong>Интерпретация:</strong> Доля дисперсии целевой переменной, объяснённая моделью.
+                    <ul>
+                        <li><strong>R² = 1</strong> — идеальное предсказание</li>
+                        <li><strong>R² = 0</strong> — модель не лучше, чем предсказание средним значением</li>
+                        <li><strong>R² &lt 0</strong> — модель хуже, чем среднее значение (переобучение или ошибка)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Сравнение метрик -->
+        <section class="content-section">
+            <h2>Сравнение метрик</h2>
+            <div class="params-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Метрика</th>
+                            <th>Диапазон</th>
+                            <th>Чувствительность к выбросам</th>
+                            <th>Интерпретируемость</th>
+                            <th>Когда использовать</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MSE</strong></td>
+                            <td>0 — ∞</td>
+                            <td>Высокая (квадрат ошибки)</td>
+                            <td>Низкая (квадраты единиц)</td>
+                            <td>Когда большие ошибки критичны</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RMSE</strong></td>
+                            <td>0 — ∞</td>
+                            <td>Высокая</td>
+                            <td>Высокая (те же единицы, что и target)</td>
+                            <td>По умолчанию, для отчётов</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MAE</strong></td>
+                            <td>0 — ∞</td>
+                            <td>Средняя (линейная)</td>
+                            <td>Высокая (средняя ошибка в единицах target)</td>
+                            <td>Когда есть выбросы, нужна робастность</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R²</strong></td>
+                            <td>-∞ — 1</td>
+                            <td>Зависит от данных</td>
+                            <td>Высокая (доля объяснённой дисперсии)</td>
+                            <td>Для сравнения моделей на одних данных</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Визуализация ошибок -->
+        <section class="content-section">
+            <h2>Визуализация ошибок</h2>
+            <div class="info-card">
+                <p>
+                    Числовые метрики — это хорошо, но <strong>графики</strong> помогают понять, 
+                    <em>где именно</em> модель ошибается.
+                </p>
+                
+                <h3>Полезные графики для регрессии:</h3>
+                
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Predicted vs Actual</h4>
+                        <p style="font-size: 14px; color: #666;">
+                            Точки на диагонали = идеальное предсказание. 
+                            Отклонения от диагонали показывают ошибки.
+                        </p>
+                    </div>
+                    <div class="pros">
+                        <h4>График остатков</h4>
+                        <p style="font-size: 14px; color: #666;">
+                            Остатки (y - ŷ) должны быть случайно разбросаны вокруг 0. 
+                            Паттерны = проблема в модели.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Пример расчёта -->
+        <section class="content-section">
+            <h2>Пример расчёта метрик</h2>
+            <div class="info-card">
+                <p><strong>Дано:</strong> 5 объектов, реальные и предсказанные значения:</p>
+                
+                <table style="width: 100%; margin: 15px 0; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9ff;">
+                            <th style="padding: 10px; border: 1px solid #ddd;">Объект</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">y (реальное)</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">ŷ (предсказанное)</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Ошибка (y - ŷ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">1</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">10</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">12</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">-2</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">2</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">20</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">18</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">+2</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">3</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">30</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">35</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">-5</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">4</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">40</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">38</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">+2</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">5</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">50</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">52</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">-2</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Расчёт:</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li><strong>MAE</strong> = (|−2| + |2| + |−5| + |2| + |−2|) / 5 = 13 / 5 = <strong>2.6</strong></li>
+                    <li><strong>MSE</strong> = (4 + 4 + 25 + 4 + 4) / 5 = 41 / 5 = <strong>8.2</strong></li>
+                    <li><strong>RMSE</strong> = √8.2 ≈ <strong>2.86</strong></li>
+                    <li><strong>R²</strong> = 1 − (41 / 1000) ≈ <strong>0.959</strong> (отлично!)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Призыв к действию -->
+        <section class="content-section cta-section">
+            <h2>Готовы оценить свою модель?</h2>
+            <p>Обучите модель регрессии и посмотрите все метрики в реальном времени!</p>
+            <div class="cta-buttons">
+                <a href="../models/LinearRegression_model.html" class="btn btn-primary btn-large">
+                    Обучить линейную регрессию
+                </a>
+                <a href="../main.html#methods" class="btn btn-outline btn-large">
+                    ← Вернуться к списку методов
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
