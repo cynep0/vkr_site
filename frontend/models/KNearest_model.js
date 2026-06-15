@@ -372,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const layout = {
-            title: 'Предсказание vs Реальность',
             xaxis: { title: 'Реальное значение' },
             yaxis: { title: 'Предсказанное значение' },
             margin: { t: 40, l: 50, r: 20, b: 50 }
