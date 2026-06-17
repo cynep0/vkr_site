@@ -38,13 +38,13 @@
                     В задачах классификации простого подсчета правильных ответов недостаточно. 
                     Метрики помогают понять:
                 </p>
-                <ul style="margin-top: 15px; margin-left: 20px;">
+                <ul>
                     <li>Насколько модель уверена в своих предсказаниях</li>
                     <li>Какие типы ошибок она совершает чаще</li>
                     <li>Как модель ведёт себя на несбалансированных данных</li>
                     <li>Какой порог классификации выбрать для конкретной задачи</li>
                 </ul>
-                <div class="highlight-box" style="margin-top: 15px;">
+                <div class="highlight-box">
                     <strong>Важно:</strong> В классификации «лучшая» метрика зависит от того, 
                     <em>какая ошибка дороже</em>: ложное срабатывание или пропуск цели.
                 </div>
@@ -71,21 +71,21 @@
                         <tbody>
                             <tr>
                                 <td rowspan="2" style="padding: 10px; background: #667eea; color: white; writing-mode: vertical-rl; transform: rotate(180deg);">Реальный класс</td>
-                                <td style="padding: 15px 25px; background: #e8f5e9; border: 2px solid #4caf50;">
+                                <td class="true-cell">
                                     <strong>TP</strong><br>
                                     <small>True Positive</small>
                                 </td>
-                                <td style="padding: 15px 25px; background: #ffebee; border: 2px solid #f44336;">
+                                <td class="false-cell">
                                     <strong>FP</strong><br>
                                     <small>False Positive</small>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="padding: 15px 25px; background: #ffebee; border: 2px solid #f44336;">
+                                <td class="false-cell">
                                     <strong>FN</strong><br>
                                     <small>False Negative</small>
                                 </td>
-                                <td style="padding: 15px 25px; background: #e8f5e9; border: 2px solid #4caf50;">
+                                <td class="true-cell">
                                     <strong>TN</strong><br>
                                     <small>True Negative</small>
                                 </td>
@@ -95,16 +95,16 @@
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
-                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                    <div class="true-cell-explanation">
                         <strong>TP (True Positive):</strong> Модель правильно предсказала положительный класс
                     </div>
-                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                    <div class="true-cell-explanation">
                         <strong>TN (True Negative):</strong> Модель правильно предсказала отрицательный класс
                     </div>
-                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #f44336;">
+                    <div class="false-cell-explanation">
                         <strong>FP (False Positive):</strong> Ложное срабатывание (ошибка 1-го рода)
                     </div>
-                    <div style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #f44336;">
+                    <div class="false-cell-explanation">
                         <strong>FN (False Negative):</strong> Пропуск цели (ошибка 2-го рода)
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                 <div class="formula-explanation">
                     <p>Доля правильных предсказаний среди всех предсказаний.</p>
                 </div>
-                <div style="margin-top: 15px; padding: 12px; background: #fff3e0; border-radius: 5px;">
+                <div class="highlight-box">
                     <p><strong>Интерпретация:</strong> Простая и понятная метрика. </p>
                     <p><strong>Проблема:</strong> Вводит в заблуждение на несбалансированных данных 
                     (если 95% класса 0, модель с 95% accuracy может просто всегда предсказывать 0).</p>
@@ -140,7 +140,7 @@
                 <div class="formula-explanation">
                     <p>Среди всех объектов, которые модель назвала положительными, какая доля действительно положительна?</p>
                 </div>
-                <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 5px;">
+                <div class="highlight-box">
                     <strong>Когда важна:</strong> Когда ложные срабатывания (FP) дороги. 
                     <br><em>Пример: спам-фильтр — лучше пропустить спам, чем удалить важное письмо.</em>
                 </div>
@@ -155,7 +155,7 @@
                 <div class="formula-explanation">
                     <p>Среди всех реально положительных объектов, какую долю модель нашла?</p>
                 </div>
-                <div style="margin-top: 15px; padding: 12px; background: #e8f5e9; border-radius: 5px;">
+                <div class="highlight-box">
                     <strong>Когда важна:</strong> Когда пропуск цели (FN) критичен. 
                     <br><em>Пример: диагностика болезни — лучше ложная тревога, чем пропуск заболевания.</em>
                 </div>
@@ -170,7 +170,7 @@
                 <div class="formula-explanation">
                     <p>Баланс между Precision и Recall. Достигает максимума, когда обе метрики высоки.</p>
                 </div>
-                <div style="margin-top: 15px; padding: 12px; background: #f3e5f5; border-radius: 5px;">
+                <div class="highlight-box">
                     <p><strong>Преимущество:</strong> Одна метрика вместо двух. </p>
                     <p><strong>Недостаток:</strong> Не учитывает TN (может быть проблемой при сильном дисбалансе).</p>
                 </div>
@@ -184,9 +184,9 @@
                         положительных объектов и долей ложно классифицированных отрицательных при разных порогах классификации.</p>
                     <p><strong>AUC</strong> (Area Under Curve) — площадь под этой кривой.</p>
                 </div>
-                <div style="margin-top: 15px; padding: 12px; background: #fff3e0; border-radius: 5px;">
+                <div class="highlight-box">
                     <strong>Интерпретация:</strong>
-                    <ul style="margin-top: 8px; margin-left: 20px;">
+                    <ul>
                         <li><strong>AUC = 1.0</strong> — идеальная модель</li>
                         <li><strong>AUC = 0.5</strong> — модель не лучше случайного угадывания</li>
                         <li><strong>AUC &lt 0.5</strong> — модель «вредная» (инвертируйте предсказания)</li>

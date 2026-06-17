@@ -446,3 +446,30 @@ main {
     margin-bottom: 5px;
     color: #333;
 }
+
+/* ========== Матрица ошибок ========== */
+.true-cell{
+    padding: 15px 25px;
+    background: #e8f5e9;
+    border: 2px solid #4caf50;
+}
+
+.false-cell{
+    padding: 15px 25px; 
+    background: #ffebee;
+    border: 2px solid #f44336;
+}
+
+.true-cell-explanation{
+    background: #e8f5e9;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #4caf50;
+}
+
+.false-cell-explanation{
+    background: #ffebee;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #f44336;
+}

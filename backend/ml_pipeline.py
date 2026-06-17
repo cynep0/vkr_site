@@ -551,7 +551,7 @@ def train_knn(
     )
 
     # === Выбор и обучение модели ===
-    print(f"✅ K-NN: {task_type}, k={n_neighbors}, weights={weights}, metric={metric}")
+    print(f"K-NN: {task_type}, k={n_neighbors}, weights={weights}, metric={metric}")
 
     if is_classification:
         model = KNeighborsClassifier(
@@ -629,7 +629,7 @@ def train_knn(
     residuals = [float((y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]) - y_pred[i])
                 for i in range(min(len(y_test), 100))]
 
-    print(f"✅ {'Accuracy' if is_classification else 'R²'}: {metrics.get('accuracy', metrics.get('r2_score')):.4f}")
+    print(f"{'Accuracy' if is_classification else 'R²'}: {metrics.get('accuracy', metrics.get('r2_score')):.4f}")
     # === Возврат результатов ===
     result = {
         **metrics,

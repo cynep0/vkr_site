@@ -319,6 +319,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Создаем текст для ячеек
         const zText = matrix.map(row => row.map(val => val.toString()));
 
+        // Создаем массив цветов для каждой ячейки
+        const textColors = matrix.map(row => 
+            row.map(val => val > 50 ? 'white' : 'black')
+        );
+
         const trace = {
             x: classLabels,
             y: classLabels,
@@ -328,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
             colorscale: 'Blues',
             showscale: true,
             texttemplate: '%{text}',
-            textfont: {size: 14, color: matrix.some(row => row.some(v => v > 10)) ? 'white' : 'black'}
+            textfont: { size: 14, color: textColors }
         };
 
         const layout = {
